@@ -33,6 +33,10 @@ int main() {
     Sprite sprite;
     InitSprite(&sprite, "resources/textures/circle.png");
 
+     Vector3D camPos = {0.0f, 0.0f, -1.0f};
+     Vector3D target = {0.0f, 0.0f, 0.0f};
+     Vector3D up = {0.0f, 1.0f, 0.0f};
+
     /*
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     */
@@ -47,13 +51,15 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT);
 
         Mat4* projection = perspective(degreesToRadians(playerCamera.FOV), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
-        Mat4* view = GetViewMatrix(playerCamera);
 
-        
-        /*
-        setShaderMat4(basicShader, "projection", projection);
+       
+
+        Mat4* view = lookAt(&camPos, &target, &up);
+        Mat4* orthographic = ortho(0.0f, SCR_WIDTH, 0.0f, SCR_HEIGHT, -1.0f, 1.0f);
+
+        setShaderMat4(basicShader, "projection", orthographic);
         setShaderMat4(basicShader, "view", view);
-        */
+
 
         Mat4 model;
         clear_matrix(&model);
