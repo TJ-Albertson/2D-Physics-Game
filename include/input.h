@@ -3,6 +3,8 @@
 
 #include <GLFW/glfw3.h>
 
+#include <camera.h> 
+
 typedef enum Input_Type {
     FORWARD,
     BACKWARD,
@@ -16,20 +18,47 @@ typedef enum Input_Type {
     CAMERA_DOWN
 } Input_Type;
 
-void ProcessInput(GLFWwindow* window)
+void ProcessKeyboard(Camera* camera, Input_Type input)
+{
+    switch (input)
+    {
+    case CAMERA_LEFT:
+        camera->Position.x += 0.1f;
+        break;
+
+    case CAMERA_RIGHT:
+        camera->Position.x -= 0.1f;
+        break;
+
+    case CAMERA_UP:
+        camera->Position.y += 0.1f;
+        break;   
+
+    case CAMERA_DOWN:
+        camera->Position.y -= 0.1f;
+        break; 
+
+    default:
+        break;
+    }
+}
+
+void ProcessInput(GLFWwindow* window, Camera* camera)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, 1);
 
-    /*
+   
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        ProcessKeyboard(camera, FORWARD, velocity, dt);
+        ProcessKeyboard(camera, CAMERA_UP);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        ProcessKeyboard(camera, BACKWARD, velocity, dt);
+        ProcessKeyboard(camera, CAMERA_DOWN);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        ProcessKeyboard(camera, LEFT, velocity, dt);
+        ProcessKeyboard(camera, CAMERA_LEFT);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        ProcessKeyboard(camera, RIGHT, velocity, dt);
+        ProcessKeyboard(camera, CAMERA_RIGHT);
+
+    /*
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         ProcessKeyboard(camera, JUMP, velocity, dt);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
@@ -44,6 +73,29 @@ void ProcessInput(GLFWwindow* window)
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
         ProcessKeyboard(camera, CAMERA_DOWN, velocity, dt);
     */
+}
+
+void ProcessMouseScroll(Camera* camera, float yoffset)
+{
+    switch (camera->Projection)
+    {
+    case ORTHOGRAPHIC: {
+        camera->Position.z -= (float)yoffset;
+
+        if (camera->Position.z < 1.0f)
+            camera->Position.z = 1.0f;
+        if (camera->Position.z > 20.0f)
+            camera->Position.z = 20.0f;   
+    } break;
+
+    case PERSPECTIVE:
+        break;
+    
+    default:
+        break;
+    }
+
+    
 }
 
 #endif /* INPUT_H */

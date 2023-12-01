@@ -15,7 +15,7 @@ typedef struct Vector3D
     float x;
     float y;
     float z;
-} 
+}
 Vector3D;
 
 void normalize(Vector3D *v) {
@@ -37,10 +37,18 @@ void subtract(Vector3D *result, const Vector3D *v1, const Vector3D *v2) {
     result->z = v1->z - v2->z;
 }
 
-Vector2D add_vectors(Vector2D v1, Vector2D v2) {
+Vector2D add_2d_vectors(Vector2D v1, Vector2D v2) {
     Vector2D result;
     result.x = v1.x + v2.x;
     result.y = v1.y + v2.y;
+    return result;
+}
+
+Vector3D add_3d_vectors(Vector3D v1, Vector3D v2) {
+    Vector3D result;
+    result.x = v1.x + v2.x;
+    result.y = v1.y + v2.y;
+    result.z = v1.z + v2.z;
     return result;
 }
 

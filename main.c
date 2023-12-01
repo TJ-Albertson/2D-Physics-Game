@@ -20,10 +20,12 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
+Camera playerCamera;
+
 int main() {
 
     GLFWwindow* glfw_window = initialize_window();
-    Camera playerCamera = CreateCamera();
+    playerCamera = CreateCamera();
 
     ShaderID basicShader = createShader("resources/shaders/b.vs", "resources/shaders/b.fs");
 
@@ -33,10 +35,6 @@ int main() {
     Sprite sprite;
     InitSprite(&sprite, "resources/textures/circle.png");
 
-     Vector3D camPos = {0.0f, 0.0f, -1.0f};
-     Vector3D target = {0.0f, 0.0f, 0.0f};
-     Vector3D up = {0.0f, 1.0f, 0.0f};
-
     /*
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     */
@@ -45,26 +43,25 @@ int main() {
 
     while (!glfwWindowShouldClose(glfw_window)) 
     {
-        ProcessInput(glfw_window);
+        ProcessInput(glfw_window, &playerCamera);
 
         glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        Mat4* projection = perspective(degreesToRadians(playerCamera.FOV), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
+        
+        Mat4* perspect = perspective(degreesToRadians(playerCamera.FOV), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
+    
 
-       
-
-        Mat4* view = lookAt(&camPos, &target, &up);
         Mat4* orthographic = ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 100.0f);
+        Mat4* view = GetViewMatrix(playerCamera);
 
-        setShaderMat4(basicShader, "projection", orthographic);
+        setShaderMat4(basicShader, "projection", perspect);
         setShaderMat4(basicShader, "view", view);
 
         Mat4 model;
         clear_matrix(&model);
         setShaderMat4(basicShader, "model", &model);
 
-        
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureID);
@@ -73,12 +70,13 @@ int main() {
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
 
-        translateMat4(&model, 1.0f, 0.0f, 0.0f);
+        translateMat4(&model, playerCamera.Position.x, playerCamera.Position.y, 0.0f);
         setShaderMat4(basicShader, "model", &model);
 
+        /*
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+        glBindVertexArray(0);*/
 
         /* End */
         glfwSwapBuffers(glfw_window);
@@ -120,6 +118,12 @@ GLFWwindow* initialize_window()
         fprintf(stderr, "Failed to initialize GLAD\n");
     }
 
+    /*
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    */
+
     return glfw_window;
 }
 
@@ -138,5 +142,5 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-
+    ProcessMouseScroll(&playerCamera, yoffset);
 }
