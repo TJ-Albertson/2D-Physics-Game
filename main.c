@@ -62,7 +62,6 @@ int main() {
         clear_matrix(&model);
         setShaderMat4(basicShader, "model", &model);
 
-
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureID);
 
@@ -73,10 +72,9 @@ int main() {
         translateMat4(&model, playerCamera.Position.x, playerCamera.Position.y, 0.0f);
         setShaderMat4(basicShader, "model", &model);
 
-        /*
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);*/
+        glBindVertexArray(0);
 
         /* End */
         glfwSwapBuffers(glfw_window);

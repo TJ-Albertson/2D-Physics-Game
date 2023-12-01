@@ -47,7 +47,7 @@ Camera CreateCamera()
     camera.Position.x = 0.0f;
     camera.Position.y = 0.0f;
     camera.Position.z = 1.0f;
-    /* y is up */
+
     camera.WorldUp.x = 0.0f; 
     camera.WorldUp.y = 1.0f; 
 
