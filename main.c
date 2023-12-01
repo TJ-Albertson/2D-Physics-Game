@@ -33,7 +33,7 @@ int main() {
     Sprite sprite;
     InitSprite(&sprite, "resources/textures/circle.png");
 
-     Vector3D camPos = {0.0f, 0.0f, -1.0f};
+     Vector3D camPos = {0.0f, 0.0f, -2.0f};
      Vector3D target = {0.0f, 0.0f, 0.0f};
      Vector3D up = {0.0f, 1.0f, 0.0f};
 
@@ -55,18 +55,26 @@ int main() {
        
 
         Mat4* view = lookAt(&camPos, &target, &up);
-        Mat4* orthographic = ortho(0.0f, SCR_WIDTH, 0.0f, SCR_HEIGHT, -1.0f, 1.0f);
+        Mat4* orthographic = ortho(0.0f, SCR_WIDTH, 0.0f, SCR_HEIGHT, -10.0f, 10.0f);
 
-        setShaderMat4(basicShader, "projection", orthographic);
+        setShaderMat4(basicShader, "projection", projection);
         setShaderMat4(basicShader, "view", view);
-
 
         Mat4 model;
         clear_matrix(&model);
         setShaderMat4(basicShader, "model", &model);
 
+        
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureID);
+
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+
+        translateMat4(&model, 0.0f, 0.0f, 0.0f);
+        setShaderMat4(basicShader, "model", &model);
 
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

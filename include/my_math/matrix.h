@@ -8,6 +8,13 @@
 
 typedef float Mat4[4][4];
 
+void translateMat4(Mat4* matrix, float tx, float ty, float tz) 
+{
+    (*matrix)[0][3] += tx;
+    (*matrix)[1][3] += ty;
+    (*matrix)[2][3] += tz;
+}
+
 void clear_matrix(Mat4* mat)
 {
     int i, j;
