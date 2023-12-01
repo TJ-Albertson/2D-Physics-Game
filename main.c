@@ -6,6 +6,7 @@
 #include <input.h>
 #include <camera.h>
 #include <my_math/matrix.h>
+#include <shader.h>
 
 unsigned int SCR_WIDTH = 2000;
 unsigned int SCR_HEIGHT = 1200;
@@ -21,6 +22,8 @@ int main() {
 
     GLFWwindow* glfw_window = initialize_window();
     Camera playerCamera;
+
+    ShaderID basicShader = createShader("resources/shaders/basic.vs", "resources/shaders/basic.fs");
 
     while (!glfwWindowShouldClose(glfw_window)) 
     {

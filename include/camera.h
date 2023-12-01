@@ -29,7 +29,9 @@ Camera CreateCamera(Vector2D position)
 {
     Camera camera;
 
-    camera.Front = {0.0f, 0.0f};
+    camera.Front.x = 0.0f;
+    camera.Front.y = 0.0f;
+
     camera.MovementSpeed = SPEED;
     camera.MouseSensitivity = SENSITIVITY;
     camera.Zoom = ZOOM;
@@ -37,7 +39,8 @@ Camera CreateCamera(Vector2D position)
 
     camera.Position = position;
     /* y is up */
-    camera.WorldUp = { 0.0f, 1.0f }; 
+    camera.WorldUp.x = 0.0f; 
+    camera.WorldUp.y = 1.0f; 
 
     return camera;
 }
