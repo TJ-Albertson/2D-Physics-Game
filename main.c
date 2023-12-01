@@ -8,6 +8,7 @@
 #include <my_math/matrix.h>
 #include <shader.h>
 #include <sprite.h>
+#include <wavefront.h>
 
 unsigned int SCR_WIDTH = 2000;
 unsigned int SCR_HEIGHT = 1200;
@@ -26,8 +27,17 @@ int main() {
 
     ShaderID basicShader = createShader("resources/shaders/b.vs", "resources/shaders/b.fs");
 
+    unsigned int VAO = load_wavefront("resources/textures/circle.obj");
+    unsigned int textureID = LoadTexture("resources/textures/blue_circle.png");
+
     Sprite sprite;
     InitSprite(&sprite, "resources/textures/circle.png");
+
+    /*
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    */
+    glUseProgram(basicShader);
+    glUniform1i(glGetUniformLocation(basicShader, "texture1"), 0);
 
     while (!glfwWindowShouldClose(glfw_window)) 
     {
@@ -39,7 +49,7 @@ int main() {
         Mat4* projection = perspective(degreesToRadians(playerCamera.FOV), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
         Mat4* view = GetViewMatrix(playerCamera);
 
-        glUseProgram(basicShader);
+        
         /*
         setShaderMat4(basicShader, "projection", projection);
         setShaderMat4(basicShader, "view", view);
@@ -48,8 +58,13 @@ int main() {
         Mat4 model;
         clear_matrix(&model);
         setShaderMat4(basicShader, "model", &model);
-        
-        DrawSprite(sprite);
+
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, textureID);
+
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
         /* End */
         glfwSwapBuffers(glfw_window);
