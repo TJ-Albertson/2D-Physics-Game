@@ -7,6 +7,7 @@
 #include <camera.h>
 #include <my_math/matrix.h>
 #include <shader.h>
+#include <sprite.h>
 
 unsigned int SCR_WIDTH = 2000;
 unsigned int SCR_HEIGHT = 1200;
@@ -21,9 +22,12 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 int main() {
 
     GLFWwindow* glfw_window = initialize_window();
-    Camera playerCamera;
+    Camera playerCamera = CreateCamera();
 
-    ShaderID basicShader = createShader("resources/shaders/basic.vs", "resources/shaders/basic.fs");
+    ShaderID basicShader = createShader("resources/shaders/b.vs", "resources/shaders/b.fs");
+
+    Sprite sprite;
+    InitSprite(&sprite, "resources/textures/circle.png");
 
     while (!glfwWindowShouldClose(glfw_window)) 
     {
@@ -35,6 +39,17 @@ int main() {
         Mat4* projection = perspective(degreesToRadians(playerCamera.FOV), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
         Mat4* view = GetViewMatrix(playerCamera);
 
+        glUseProgram(basicShader);
+        /*
+        setShaderMat4(basicShader, "projection", projection);
+        setShaderMat4(basicShader, "view", view);
+        */
+
+        Mat4 model;
+        clear_matrix(&model);
+        setShaderMat4(basicShader, "model", &model);
+        
+        DrawSprite(sprite);
 
         /* End */
         glfwSwapBuffers(glfw_window);

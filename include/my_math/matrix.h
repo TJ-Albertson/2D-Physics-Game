@@ -8,6 +8,19 @@
 
 typedef float Mat4[4][4];
 
+void clear_matrix(Mat4* mat)
+{
+    int i, j;
+    for(i = 0; i < 4; i++) {
+        for(j = 0; j < 4; j++) {
+            if(i == j)
+                (*mat)[i][j] = 1.0f;  /* Diagonal elements to 1 */
+            else
+                (*mat)[i][j] = 0.0f;  /* Non-diagonal elements to 0 */
+        }
+    }
+}
+
 Mat4* perspective(float fovy, float aspect, float near, float far) 
 {
     Mat4* matrix = (Mat4*)malloc(sizeof(Mat4));

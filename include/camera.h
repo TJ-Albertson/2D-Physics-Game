@@ -25,7 +25,7 @@ typedef struct Camera {
     float FOV;
 } Camera;
 
-Camera CreateCamera(Vector2D position)
+Camera CreateCamera()
 {
     Camera camera;
 
@@ -37,7 +37,8 @@ Camera CreateCamera(Vector2D position)
     camera.Zoom = ZOOM;
     camera.FOV = FOV;
 
-    camera.Position = position;
+    camera.Position.x = -2.0f;
+    camera.Position.y = 0.0f;
     /* y is up */
     camera.WorldUp.x = 0.0f; 
     camera.WorldUp.y = 1.0f; 
