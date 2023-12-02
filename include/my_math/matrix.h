@@ -23,9 +23,9 @@ void clear_matrix(Mat4* mat)
 
 void translateMat4(Mat4* matrix, float tx, float ty, float tz) 
 {
-    (*matrix)[0][3] += tx;
-    (*matrix)[1][3] += ty;
-    (*matrix)[2][3] += tz;
+    (*matrix)[3][0] += tx;
+    (*matrix)[3][1] += ty;
+    (*matrix)[3][2] += tz;
 }
 
 Mat4* perspective(float fovy, float aspect, float near, float far) 

@@ -35,9 +35,9 @@ int main() {
     Sprite sprite;
     InitSprite(&sprite, "resources/textures/circle.png");
 
-    /*
+    glLineWidth(3.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    */
+    
     glUseProgram(basicShader);
     glUniform1i(glGetUniformLocation(basicShader, "texture1"), 0);
 
@@ -115,13 +115,12 @@ GLFWwindow* initialize_window()
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         fprintf(stderr, "Failed to initialize GLAD\n");
     }
-
-    /*
-    glEnable(GL_DEPTH_TEST);
+    
+    /* OpenGL Global State */
+    /*  glEnable(GL_DEPTH_TEST); */
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    */
-
+    
     return glfw_window;
 }
 
