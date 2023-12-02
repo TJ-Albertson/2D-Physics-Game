@@ -46,6 +46,11 @@ void checkGLError() {
 }
 
 
+void setShaderBool(unsigned int shaderID, const char* name, int value)
+{
+    glUniform1i(glGetUniformLocation(shaderID, name), (int)value);
+}
+
 void setShaderMat4(unsigned int shaderID, const char* name, const Mat4* mat)
 {
     glUniformMatrix4fv(glGetUniformLocation(shaderID, name), 1, GL_FALSE, mat[0][0]);
@@ -62,6 +67,11 @@ void setShaderVec2(unsigned int shaderID, const char* name, float x, float y)
     } else {
         printf("Error: Uniform %s not found in shader %d\n", name, shaderID);
     }
+}
+
+void setShaderVec4(unsigned int shaderID, const char* name, float x, float y, float z, float w)
+{
+    glUniform4f(glGetUniformLocation(shaderID, name), x, y, z, w);
 }
 
 void setShaderFloat(unsigned int shaderID, const char* name, float value)

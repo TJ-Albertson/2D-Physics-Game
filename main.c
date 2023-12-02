@@ -10,6 +10,7 @@
 #include <shader.h>
 #include <sprite.h>
 #include <wavefront.h>
+#include <platform.h>
 
 unsigned int SCR_WIDTH = 2000;
 unsigned int SCR_HEIGHT = 1200;
@@ -73,6 +74,12 @@ int main() {
 
     glBindVertexArray(0);
     /* Grid */
+
+    Platform platform;
+    platform.width = 5.0f;
+    platform.height = 2.0f;
+    platform.position.x = 0.0f;
+    platform.position.y = -3.0f;
     
     glUseProgram(basicShader);
     glUniform1i(glGetUniformLocation(basicShader, "texture1"), 0);
@@ -120,9 +127,10 @@ int main() {
 
 
         glUseProgram(basicShader);
-
         setShaderMat4(basicShader, "projection", perspect);
         setShaderMat4(basicShader, "view", view);
+
+        DrawPlatform(basicShader, VAO, platform);
 
         Mat4 model;
         clear_matrix(&model);
