@@ -4,33 +4,19 @@
 #include <GLFW/glfw3.h>
 
 #include <my_math/vector.h>
+#include <input.h>
 
 typedef struct State {
     Vector2D position;
     Vector2D velocity;
 } State;
 
-Vector2D gravity = { 0.0f, -1.0f };
+Vector2D gravity = { 0.0f, -0.008f };
 
 float t = 0.0;
 float dt = 0.01;
-    
-float currentTime = 0.0;
-float accumulator = 0.0;
 
 State state;
-State previousState;
-State currentState;
-double prevTime = 0.0;
-
-float frameTime = 0.0f;
-
-void preSim() {
-
-    currentState = state;
-    currentTime = glfwGetTime();
-    prevTime = glfwGetTime();
-}
 
 void IntegrateState(State* state, float time, float dt)
 {
@@ -51,6 +37,7 @@ void IntegrateState(State* state, float time, float dt)
     state->velocity = velocity;
 }
 
+/*
 void timeStep() 
 {
     float newTime = glfwGetTime();
@@ -79,11 +66,12 @@ void advanceSimulation()
     const float alpha = accumulator / dt;
 
     /* interpolating between pevious and current state */
+    /*
     state.velocity.x = currentState.velocity.x * alpha + previousState.velocity.x * (1.0f - alpha);
     state.velocity.y = currentState.velocity.y * alpha + previousState.velocity.y * (1.0f - alpha);
 
     state.position.x = currentState.position.x * alpha + previousState.position.x * (1.0f - alpha);
     state.position.y = currentState.position.y * alpha + previousState.position.y * (1.0f - alpha);
-}
+}*/
 
 #endif /* PHYSICS_H */

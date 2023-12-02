@@ -19,31 +19,34 @@ typedef enum Input_Type {
     CAMERA_DOWN
 } Input_Type;
 
-void ProcessKeyboard(Camera* camera, Input_Type input)
+void ProcessKeyboard(Camera *camera, Input_Type input)
 {
     switch (camera->Type)
     {
-    case THIRD: {
+    case THIRD:
+    {
         switch (input)
         {
         case CAMERA_LEFT:
-            state.velocity.x += 1.0f * dt;
+            state.velocity.x += 10.0f * dt;
             break;
 
         case CAMERA_RIGHT:
-            state.velocity.x -= 1.0f * dt;
+            state.velocity.x -= 10.0f * dt;
             break;
 
         case JUMP:
-            state.velocity.y += 2.0f * dt;
-            break;  
+            state.velocity.y += 10.0f * dt;
+            break;
 
         default:
             break;
         }
-    } break;
+    }
+    break;
 
-    case FREE: {
+    case FREE:
+    {
         switch (input)
         {
         case CAMERA_LEFT:
@@ -56,21 +59,21 @@ void ProcessKeyboard(Camera* camera, Input_Type input)
 
         case CAMERA_UP:
             camera->Position.y += 0.1f;
-            break;   
+            break;
 
         case CAMERA_DOWN:
             camera->Position.y -= 0.1f;
-            break; 
+            break;
 
         default:
             break;
         }
-    } break;   
-    
+    }
+    break;
+
     default:
         break;
     }
-    
 }
 
 void ProcessInput(GLFWwindow* window, Camera* camera)

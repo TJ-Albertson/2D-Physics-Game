@@ -4,6 +4,7 @@
 #include <my_math/vector.h>
 #include <my_math/matrix.h>
 
+
 /* Default camera values */
 const float YAW = -90.0f;
 const float PITCH = 0.0f;
@@ -58,7 +59,7 @@ Camera CreateCamera()
     camera.WorldUp.y = 1.0f; 
 
     camera.Projection = ORTHOGRAPHIC;
-    camera.Type = FREE; 
+    camera.Type = THIRD; 
 
     return camera;
 }

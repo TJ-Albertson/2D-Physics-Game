@@ -54,28 +54,57 @@ int main() {
     platform.position.x = 0.0f;
     platform.position.y = -3.0f;
 
+    
+
+    float currentTime = glfwGetTime();
+    float accumulator = 0.0;
+
     state.position.x = 0.0f;
     state.position.y = 0.0f;
     state.velocity.x = 0.0f;
     state.velocity.y = 0.0f;
 
-    int simulationPaused = 0;
+    State previousState;
+    State currentState = state;
+    double prevTime = glfwGetTime();
 
-    preSim();
     
     glUseProgram(basicShader);
     glUniform1i(glGetUniformLocation(basicShader, "texture1"), 0);
 
     while (!glfwWindowShouldClose(glfw_window)) 
     {
-        timeStep();
+        float newTime = glfwGetTime();
 
-        ProcessInput(glfw_window, &playerCamera);
+        float deltaTime = newTime - currentTime;
 
-        if(!simulationPaused)
-        {
-            advanceSimulation();
+        float frameTime = newTime - currentTime;
+        if (frameTime > 0.25)
+            frameTime = 0.25;
+        float currentTime = newTime;
+
+        float devTimeMultiplier = 1.0f;
+
+        accumulator += frameTime;
+
+        
+        while (accumulator >= dt) {
+            previousState = currentState;
+            IntegrateState(&currentState, t, dt * devTimeMultiplier);
+            t += dt;
+            accumulator -= dt;
         }
+
+        const float alpha = accumulator / dt;
+
+        /* interpolating between pevious and current state */
+        state.velocity.x = currentState.velocity.x * alpha + previousState.velocity.x * (1.0f - alpha);
+        state.velocity.y = currentState.velocity.y * alpha + previousState.velocity.y * (1.0f - alpha);
+
+        state.position.x = currentState.position.x * alpha + previousState.position.x * (1.0f - alpha);
+        state.position.y = currentState.position.y * alpha + previousState.position.y * (1.0f - alpha);
+
+        printf("state.position.y: %f\n", state.position.y);
 
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -83,9 +112,10 @@ int main() {
         Mat4* perspect = perspective(degreesToRadians(playerCamera.FOV), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
         Mat4* orthographic = ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 100.0f);
 
+        playerCamera.Position.x = state.position.x;
+        playerCamera.Position.y = state.position.y;
 
-        playerCamera.Front.x = state.position.x;
-        playerCamera.Front.y = state.position.y;
+
         Mat4* view = GetViewMatrix(playerCamera);
 
         
