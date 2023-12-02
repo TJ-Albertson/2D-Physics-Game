@@ -131,7 +131,9 @@ unsigned int load_wavefront(const char* filename)
         }
     }
 
+    /*
     printObjModel(&model);
+    */
 
     fclose(file);
 

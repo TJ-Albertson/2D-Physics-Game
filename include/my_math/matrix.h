@@ -28,6 +28,12 @@ void translateMat4(Mat4* matrix, float tx, float ty, float tz)
     (*matrix)[3][2] += tz;
 }
 
+void scaleMat4(Mat4* matrix, float scaleX, float scaleY, float scaleZ) {
+    (*matrix)[0][0] = scaleX;
+    (*matrix)[1][1] = scaleY;
+    (*matrix)[2][2] = scaleZ;
+}
+
 Mat4* perspective(float fovy, float aspect, float near, float far) 
 {
     Mat4* matrix = (Mat4*)malloc(sizeof(Mat4));
@@ -112,5 +118,34 @@ Mat4* ortho(float left, float right, float bottom, float top, float near, float 
 
     return matrix;
 }
+
+Mat4* generateClipMatrix(float n, float r, float t) {
+
+    Mat4* matrix = (Mat4*)malloc(sizeof(Mat4));
+
+    (*matrix)[0][0] = n / r;
+    (*matrix)[0][1] = 0.0f;
+    (*matrix)[0][2] = 0.0f;
+    (*matrix)[0][3] = 0.0f;
+
+    (*matrix)[1][0] = 0.0f;
+    (*matrix)[1][1] = n / t;
+    (*matrix)[1][2] = 0.0f;
+    (*matrix)[1][3] = 0.0f;
+
+    (*matrix)[2][0] = 0.0f;
+    (*matrix)[2][1] = 0.0f;
+    (*matrix)[2][2] = -1.0f;
+    (*matrix)[2][3] = -2.0f * n;
+
+    (*matrix)[3][0] = 0.0f;
+    (*matrix)[3][1] = 0.0f;
+    (*matrix)[3][2] = -1.0f;
+    (*matrix)[3][3] = 0.0f;
+
+    return matrix;
+}
+
+
 
 #endif /* MATRIX_H */
