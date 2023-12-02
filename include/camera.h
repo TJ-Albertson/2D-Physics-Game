@@ -17,6 +17,11 @@ typedef enum  {
     PERSPECTIVE
 } Camera_Projection;
 
+typedef enum Camera_Type {
+    THIRD,
+    FREE
+} Camera_Type;
+
 typedef struct {
     Vector3D Position;
     Vector2D Front;
@@ -29,7 +34,8 @@ typedef struct {
     float Zoom;
     float FOV;
 
-    Camera_Projection Projection;   
+    Camera_Projection Projection;
+    Camera_Type Type;   
 } Camera;
 
 Camera CreateCamera()
@@ -52,6 +58,7 @@ Camera CreateCamera()
     camera.WorldUp.y = 1.0f; 
 
     camera.Projection = ORTHOGRAPHIC;
+    camera.Type = FREE; 
 
     return camera;
 }

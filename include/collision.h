@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <my_math/vector.h>
+#include <physics.h>
+
 typedef struct Plane {
     float normal[3];
     float dot;
@@ -21,6 +24,8 @@ typedef struct CollisionData{
     float normal[3];
     Triangle triangle;
 } CollisionData;
+
+typedef Vector3D Point;
 
 typedef struct AABB {
     Point center; 
@@ -84,7 +89,7 @@ void CollisionDetection(Triangle* triangles, int numTriangles, Object* objects, 
 
             if (collision)
             {
-                SetCollisionBit(collisionFlags, i, 1);
+                SetCollisionBit(&collisionFlags, i, 1);
 
                 collisionData[i].triangle = triangles[j];
             }

@@ -3,7 +3,8 @@
 
 #include <GLFW/glfw3.h>
 
-#include <camera.h> 
+#include <camera.h>
+#include <physics.h>
 
 typedef enum Input_Type {
     FORWARD,
@@ -20,27 +21,56 @@ typedef enum Input_Type {
 
 void ProcessKeyboard(Camera* camera, Input_Type input)
 {
-    switch (input)
+    switch (camera->Type)
     {
-    case CAMERA_LEFT:
-        camera->Position.x += 0.1f;
-        break;
+    case THIRD: {
+        switch (input)
+        {
+        case CAMERA_LEFT:
+            state.velocity.x += 1.0f * dt;
+            break;
 
-    case CAMERA_RIGHT:
-        camera->Position.x -= 0.1f;
-        break;
+        case CAMERA_RIGHT:
+            state.velocity.x -= 1.0f * dt;
+            break;
 
-    case CAMERA_UP:
-        camera->Position.y += 0.1f;
-        break;   
+        case JUMP:
+            state.velocity.y += 2.0f * dt;
+            break;  
 
-    case CAMERA_DOWN:
-        camera->Position.y -= 0.1f;
-        break; 
+        default:
+            break;
+        }
+    } break;
 
+    case FREE: {
+        switch (input)
+        {
+        case CAMERA_LEFT:
+            camera->Position.x += 0.1f;
+            break;
+
+        case CAMERA_RIGHT:
+            camera->Position.x -= 0.1f;
+            break;
+
+        case CAMERA_UP:
+            camera->Position.y += 0.1f;
+            break;   
+
+        case CAMERA_DOWN:
+            camera->Position.y -= 0.1f;
+            break; 
+
+        default:
+            break;
+        }
+    } break;   
+    
     default:
         break;
     }
+    
 }
 
 void ProcessInput(GLFWwindow* window, Camera* camera)
@@ -58,9 +88,11 @@ void ProcessInput(GLFWwindow* window, Camera* camera)
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         ProcessKeyboard(camera, CAMERA_RIGHT);
 
-    /*
+    
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        ProcessKeyboard(camera, JUMP, velocity, dt);
+        ProcessKeyboard(camera, JUMP);
+
+        /*
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
         ProcessKeyboard(camera, SPRINT, velocity, dt);
 

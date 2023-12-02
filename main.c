@@ -11,6 +11,9 @@
 #include <sprite.h>
 #include <wavefront.h>
 #include <platform.h>
+#include <grid.h>
+#include <shapes.h>
+#include <physics.h>    
 
 unsigned int SCR_WIDTH = 2000;
 unsigned int SCR_HEIGHT = 1200;
@@ -29,6 +32,8 @@ int main() {
     GLFWwindow* glfw_window = initialize_window();
     playerCamera = CreateCamera();
 
+    LoadShapes();
+
     ShaderID basicShader = createShader("resources/shaders/basic.vs", "resources/shaders/basic.fs");
     ShaderID gridShader = createShader("resources/shaders/grid.vs", "resources/shaders/grid.fs");
 
@@ -43,108 +48,65 @@ int main() {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     */
 
-    /* Grid */
-    float vertices[] = {
-        -1.0f, -1.0f,  
-         1.0f, -1.0f, 
-         1.0f,  1.0f,  
-        -1.0f,  1.0f  
-    };
-
-    unsigned int indices[] = {
-        0, 1, 2,  
-        0, 2, 3  
-    };
-
-    unsigned int VAO, VBO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindVertexArray(0);
-    /* Grid */
-
     Platform platform;
     platform.width = 5.0f;
     platform.height = 2.0f;
     platform.position.x = 0.0f;
     platform.position.y = -3.0f;
+
+    state.position.x = 0.0f;
+    state.position.y = 0.0f;
+    state.velocity.x = 0.0f;
+    state.velocity.y = 0.0f;
+
+    int simulationPaused = 0;
+
+    preSim();
     
     glUseProgram(basicShader);
     glUniform1i(glGetUniformLocation(basicShader, "texture1"), 0);
 
     while (!glfwWindowShouldClose(glfw_window)) 
     {
+        timeStep();
+
         ProcessInput(glfw_window, &playerCamera);
+
+        if(!simulationPaused)
+        {
+            advanceSimulation();
+        }
 
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-
         Mat4* perspect = perspective(degreesToRadians(playerCamera.FOV), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
-        
         Mat4* orthographic = ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 100.0f);
-        
+
+
+        playerCamera.Front.x = state.position.x;
+        playerCamera.Front.y = state.position.y;
         Mat4* view = GetViewMatrix(playerCamera);
 
-        /* Grid */
-        glUseProgram(gridShader);
         
-        setShaderMat4(gridShader, "projection", perspect);
-        setShaderMat4(gridShader, "view", view);
-
-        float grid_scale = 25;
-        float grid_move_speed = 1.0f / grid_scale;
-
-        Mat4 grid_model;
-        clear_matrix(&grid_model);
-        translateMat4(&grid_model, playerCamera.Position.x, playerCamera.Position.y, 0.0f);
-        scaleMat4(&grid_model, grid_scale, grid_scale, 1.0f);
-        setShaderMat4(gridShader, "model", &grid_model);
-
-        setShaderVec2(gridShader, "offset", playerCamera.Position.x * grid_move_speed, playerCamera.Position.y * grid_move_speed);
-        setShaderFloat(gridShader, "gridSize", 150.0);
-        setShaderFloat(gridShader, "lineThickness", 0.05f);
-
-
+        DrawGrid(gridShader, squareVAO, perspect, view, playerCamera);
         
-
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-        /* Grid */
-
 
         glUseProgram(basicShader);
         setShaderMat4(basicShader, "projection", perspect);
         setShaderMat4(basicShader, "view", view);
 
-        DrawPlatform(basicShader, VAO, platform);
+       
+        DrawPlatform(basicShader, squareVAO, platform);
+        
 
         Mat4 model;
         clear_matrix(&model);
+        translateMat4(&model, state.position.x, state.position.y, 0.0f);
         setShaderMat4(basicShader, "model", &model);
-
-        glBindVertexArray(circle_VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureID);
-
-        translateMat4(&model, playerCamera.Position.x, playerCamera.Position.y, 0.0f);
-        setShaderMat4(basicShader, "model", &model);
 
         glBindVertexArray(circle_VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

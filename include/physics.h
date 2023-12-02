@@ -15,13 +15,22 @@ Vector2D gravity = { 0.0f, -1.0f };
 float t = 0.0;
 float dt = 0.01;
     
-float currentTime = glfwGetTime();
+float currentTime = 0.0;
 float accumulator = 0.0;
 
 State state;
 State previousState;
-State currentState = state;
-double prevTime = glfwGetTime();
+State currentState;
+double prevTime = 0.0;
+
+float frameTime = 0.0f;
+
+void preSim() {
+
+    currentState = state;
+    currentTime = glfwGetTime();
+    prevTime = glfwGetTime();
+}
 
 void IntegrateState(State* state, float time, float dt)
 {
@@ -42,36 +51,39 @@ void IntegrateState(State* state, float time, float dt)
     state->velocity = velocity;
 }
 
-void timeStep() {
-    // per-frame time logic
-        // --------------------
-        float newTime = glfwGetTime();
+void timeStep() 
+{
+    float newTime = glfwGetTime();
 
-        // using in other stuff
-        float deltaTime = newTime - currentTime;
+    float deltaTime = newTime - currentTime;
 
-        float frameTime = newTime - currentTime;
-        if (frameTime > 0.25)
-            frameTime = 0.25;
-        float currentTime = newTime;
+    float frameTime = newTime - currentTime;
+    if (frameTime > 0.25)
+        frameTime = 0.25;
+    float currentTime = newTime;
 }
 
 void advanceSimulation()
 {
+    float devTimeMultiplier = 1.0f;
+
     accumulator += frameTime;
 
     while (accumulator >= dt) {
         previousState = currentState;
-        IntegrateState(currentState, t, dt * devTimeMultiplier);
+        IntegrateState(&currentState, t, dt * devTimeMultiplier);
         t += dt;
         accumulator -= dt;
     }
 
     const float alpha = accumulator / dt;
 
-    // interpolating between pevious and current state
-    state.velocity = currentState.velocity * alpha + previousState.velocity * (1.0f - alpha);
-    state.position = currentState.position * alpha + previousState.position * (1.0f - alpha);
+    /* interpolating between pevious and current state */
+    state.velocity.x = currentState.velocity.x * alpha + previousState.velocity.x * (1.0f - alpha);
+    state.velocity.y = currentState.velocity.y * alpha + previousState.velocity.y * (1.0f - alpha);
+
+    state.position.x = currentState.position.x * alpha + previousState.position.x * (1.0f - alpha);
+    state.position.y = currentState.position.y * alpha + previousState.position.y * (1.0f - alpha);
 }
 
 #endif /* PHYSICS_H */
