@@ -30,12 +30,13 @@ GLFWwindow* glfw_window;
 
 void IntegrateState(State* state, float time, float dt)
 {
+    
     Vector2D velocity = state->velocity;
     Vector2D position = state->position;
 
     Vector2D acceleration = gravity;
 
-    void ProcessInput(glfw_window, playerCamera);
+    ProcessInput(glfw_window, &playerCamera, &velocity);
 
     velocity.x = velocity.x + acceleration.x * dt;
     velocity.y = velocity.y + acceleration.y * dt;
@@ -111,6 +112,7 @@ int main() {
         accumulator += frameTime;
 
         
+
         while (accumulator >= dt) {
             previousState = currentState;
             IntegrateState(&currentState, t, dt * devTimeMultiplier);
@@ -134,6 +136,8 @@ int main() {
 
         Mat4* perspect = perspective(degreesToRadians(playerCamera.FOV), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
         Mat4* orthographic = ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 100.0f);
+
+        
 
         playerCamera.Position.x = state.position.x;
         playerCamera.Position.y = state.position.y;

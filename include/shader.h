@@ -65,7 +65,7 @@ void setShaderVec2(unsigned int shaderID, const char* name, float x, float y)
           glUniform2f(location, x, y);
       
     } else {
-        printf("Error: Uniform %s not found in shader %d\n", name, shaderID);
+        /*printf("Error: Uniform %s not found in shader %d\n", name, shaderID);*/
     }
 }
 
@@ -82,7 +82,7 @@ void setShaderFloat(unsigned int shaderID, const char* name, float value)
         glUniform1f(location, value);
       
     } else {
-        printf("Error: Uniform %s not found in shader %d\n", name, shaderID);
+       /* printf("Error: Uniform %s not found in shader %d\n", name, shaderID);*/
     }
 }
 

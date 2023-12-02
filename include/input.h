@@ -19,7 +19,7 @@ typedef enum Input_Type {
     CAMERA_DOWN
 } Input_Type;
 
-void ProcessKeyboard(Camera *camera, Input_Type input)
+void ProcessKeyboard(Camera *camera, Input_Type input, Vector2D* velocity)
 {
     switch (camera->Type)
     {
@@ -28,16 +28,16 @@ void ProcessKeyboard(Camera *camera, Input_Type input)
         switch (input)
         {
         case CAMERA_LEFT:
-            state.velocity.x += 10.0f * dt;
+            velocity->x += 0.1f * dt;
             break;
 
         case CAMERA_RIGHT:
-            state.velocity.x -= 10.0f * dt;
+            velocity->x -= 0.1f * dt;
             break;
 
         case JUMP: {
             printf("jump\n");
-            state.velocity.y += 10.0f * dt;
+            velocity->y = velocity->y + 0.5f * dt;
         }
             
             break;
@@ -79,24 +79,24 @@ void ProcessKeyboard(Camera *camera, Input_Type input)
     }
 }
 
-void ProcessInput(GLFWwindow* window, Camera* camera)
+void ProcessInput(GLFWwindow* window, Camera* camera, Vector2D* velocity)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, 1);
 
    
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        ProcessKeyboard(camera, CAMERA_UP);
+        ProcessKeyboard(camera, CAMERA_UP, velocity);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        ProcessKeyboard(camera, CAMERA_DOWN);
+        ProcessKeyboard(camera, CAMERA_DOWN, velocity);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        ProcessKeyboard(camera, CAMERA_LEFT);
+        ProcessKeyboard(camera, CAMERA_LEFT, velocity);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        ProcessKeyboard(camera, CAMERA_RIGHT);
+        ProcessKeyboard(camera, CAMERA_RIGHT, velocity);
 
     
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        ProcessKeyboard(camera, JUMP);
+        ProcessKeyboard(camera, JUMP, velocity);
 
         /*
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
