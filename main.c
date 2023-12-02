@@ -84,16 +84,7 @@ int main() {
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        
-        float n = 0.1f;
-        float fov = playerCamera.FOV;
-        float aspectRatio = (float)SCR_WIDTH / (float)SCR_HEIGHT;
 
-        float r = n * tan(0.5f * (fov * PI / 180.0f));
-        float t = r * aspectRatio;
-            
-        Mat4* grid_projection = generateClipMatrix(n, r, t);
-        
         Mat4* perspect = perspective(degreesToRadians(playerCamera.FOV), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, RENDER_DISTANCE);
         
         Mat4* orthographic = ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 100.0f);
@@ -102,17 +93,25 @@ int main() {
 
         /* Grid */
         glUseProgram(gridShader);
+        
         setShaderMat4(gridShader, "projection", perspect);
         setShaderMat4(gridShader, "view", view);
 
+        float grid_scale = 25;
+        float grid_move_speed = 1.0f / grid_scale;
+
         Mat4 grid_model;
         clear_matrix(&grid_model);
-
-        setShaderVec2(gridShader, "offset", playerCamera.Position.x * 0.1f, playerCamera.Position.y * 0.1f);
-
         translateMat4(&grid_model, playerCamera.Position.x, playerCamera.Position.y, 0.0f);
-        scaleMat4(&grid_model, SCR_WIDTH / 100, SCR_HEIGHT / 100, 1.0f);
-        setShaderMat4(basicShader, "model", &grid_model);
+        scaleMat4(&grid_model, grid_scale, grid_scale, 1.0f);
+        setShaderMat4(gridShader, "model", &grid_model);
+
+        setShaderVec2(gridShader, "offset", playerCamera.Position.x * grid_move_speed, playerCamera.Position.y * grid_move_speed);
+        setShaderFloat(gridShader, "gridSize", 150.0);
+        setShaderFloat(gridShader, "lineThickness", 0.05f);
+
+
+        
 
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

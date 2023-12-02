@@ -14,6 +14,38 @@ typedef unsigned int ShaderID;
 void checkCompileErrors(GLuint shader, const char* type);
 ShaderID createShader(const char* vertexPath, const char* fragmentPath);
 
+void checkGLError() {
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+        const char* errorString;
+        switch (error) {
+            case GL_INVALID_ENUM:
+                errorString = "GL_INVALID_ENUM";
+                break;
+            case GL_INVALID_VALUE:
+                errorString = "GL_INVALID_VALUE";
+                break;
+            case GL_INVALID_OPERATION:
+                errorString = "GL_INVALID_OPERATION";
+                break;
+            case GL_STACK_OVERFLOW:
+                errorString = "GL_STACK_OVERFLOW";
+                break;
+            case GL_STACK_UNDERFLOW:
+                errorString = "GL_STACK_UNDERFLOW";
+                break;
+            case GL_OUT_OF_MEMORY:
+                errorString = "GL_OUT_OF_MEMORY";
+                break;
+            default:
+                errorString = "Unknown error";
+                break;
+        }
+        fprintf(stderr, "OpenGL Error: %s\n", errorString);
+    }
+}
+
+
 void setShaderMat4(unsigned int shaderID, const char* name, const Mat4* mat)
 {
     glUniformMatrix4fv(glGetUniformLocation(shaderID, name), 1, GL_FALSE, mat[0][0]);
@@ -21,7 +53,27 @@ void setShaderMat4(unsigned int shaderID, const char* name, const Mat4* mat)
 
 void setShaderVec2(unsigned int shaderID, const char* name, float x, float y)
 {
-    glUniform2f(glGetUniformLocation(shaderID, name), x, y);
+
+    int location = glGetUniformLocation(shaderID, name);
+
+    if (location == -1) {
+          glUniform2f(location, x, y);
+      
+    } else {
+        printf("Error: Uniform %s not found in shader %d\n", name, shaderID);
+    }
+}
+
+void setShaderFloat(unsigned int shaderID, const char* name, float value)
+{
+    int location = glGetUniformLocation(shaderID, name);
+
+    if (location == -1) {
+        glUniform1f(location, value);
+      
+    } else {
+        printf("Error: Uniform %s not found in shader %d\n", name, shaderID);
+    }
 }
 
 ShaderID createShader(const char* vertexPath, const char* fragmentPath) 
