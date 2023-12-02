@@ -26,10 +26,33 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 Camera playerCamera;
+GLFWwindow* glfw_window;
+
+void IntegrateState(State* state, float time, float dt)
+{
+    Vector2D velocity = state->velocity;
+    Vector2D position = state->position;
+
+    Vector2D acceleration = gravity;
+
+    void ProcessInput(glfw_window, playerCamera);
+
+    velocity.x = velocity.x + acceleration.x * dt;
+    velocity.y = velocity.y + acceleration.y * dt;
+
+    /*Collision(velocity, state.position, dt); */
+
+    position.x = position.x + velocity.x * dt;
+    position.y = position.y + velocity.y * dt;
+
+    state->position = position;
+    state->velocity = velocity;
+}
+
 
 int main() {
 
-    GLFWwindow* glfw_window = initialize_window();
+    glfw_window = initialize_window();
     playerCamera = CreateCamera();
 
     LoadShapes();

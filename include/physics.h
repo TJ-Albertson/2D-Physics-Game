@@ -18,6 +18,8 @@ float dt = 0.01;
 
 State state;
 
+/*
+
 void IntegrateState(State* state, float time, float dt)
 {
     Vector2D velocity = state->velocity;
@@ -28,7 +30,7 @@ void IntegrateState(State* state, float time, float dt)
     velocity.x = velocity.x + acceleration.x * dt;
     velocity.y = velocity.y + acceleration.y * dt;
 
-    /*Collision(velocity, state.position, dt); */
+    /*Collision(velocity, state.position, dt); */ /*
 
     position.x = position.x + velocity.x * dt;
     position.y = position.y + velocity.y * dt;
@@ -37,7 +39,7 @@ void IntegrateState(State* state, float time, float dt)
     state->velocity = velocity;
 }
 
-/*
+   
 void timeStep() 
 {
     float newTime = glfwGetTime();

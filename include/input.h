@@ -35,8 +35,11 @@ void ProcessKeyboard(Camera *camera, Input_Type input)
             state.velocity.x -= 10.0f * dt;
             break;
 
-        case JUMP:
+        case JUMP: {
+            printf("jump\n");
             state.velocity.y += 10.0f * dt;
+        }
+            
             break;
 
         default:
