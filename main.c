@@ -41,7 +41,7 @@ void IntegrateState(State* state, float time, float dt)
 
     ProcessInput(glfw_window, &playerCamera, &velocity);
 
-    float friction_coefficient = 0.2f;
+    float friction_coefficient = 1.0f;
     velocity.x = velocity.x + (acceleration.x - friction_coefficient * velocity.x) * dt;
     velocity.y = velocity.y + (acceleration.y - friction_coefficient * velocity.y) * dt;
 

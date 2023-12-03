@@ -10,7 +10,7 @@
 const float EPSILON = 1e-6f;
 const float FLT_MAX = 3.40282347e+38F;
 
-typedef Vector2D Point;
+typedef Vector2D Point2D;
 
 typedef struct Plane {
     float normal[3];
@@ -32,19 +32,19 @@ typedef struct CollisionData{
 
 
 typedef struct Segment {
-    Point p1;
-    Point p2;
+    Point2D p1;
+    Point2D p2;
 } Segment;
 
 
 /* Shapes */
 typedef struct AABB {
-    Point min;
-    Point max;
+    Point2D min;
+    Point2D max;
 } AABB;  
 
 typedef struct Sphere {
-    Point center;
+    Point2D center;
     float radius;
 } Sphere;  
 
@@ -117,7 +117,7 @@ void CollisionDetection(Triangle* triangles, int numTriangles, Object* objects, 
    Intersect ray R(t) = p + t*d against AABB a. When intersecting,
    return intersection distance tmin and point q of intersection
 */
-int IntersectRayAABB(Point point, Vector2D d, AABB aabb, float* tmin, Point* q)
+int IntersectRayAABB(Point2D point, Vector2D d, AABB aabb, float* tmin, Point2D* q)
 {
     (*tmin) = 0.0f;          /* set to -FLT_MAX to get first hit on line */
     float tmax = FLT_MAX;    /* set to max distance ray can travel (for segment) */
@@ -161,7 +161,7 @@ int IntersectRayAABB(Point point, Vector2D d, AABB aabb, float* tmin, Point* q)
 
 
 /* Intersection test between a 2D segment and a 2D capsule with semi-circle endcaps */
-int IntersectSegmentCapsule(Segment segment, Point p, Point q, float r, float *t)
+int IntersectSegmentCapsule(Segment segment, Point2D p, Point2D q, float r, float *t)
 {
     Vector2D d = {q.x - p.x, q.y - p.y};
     Vector2D m = {segment.p1.x - p.x, segment.p1.y - p.y};
@@ -243,29 +243,29 @@ int IntersectSegmentCapsule(Segment segment, Point p, Point q, float r, float *t
 
 
 /* Support function that returns the AABB vertex with index n */
-Point Corner(AABB b, int n)
+Point2D Corner(AABB box, int index)
 {
-    Point p;
-    p.x = ((n & 1) ? b.max.x : b.min.x);
-    p.y = ((n & 1) ? b.max.y : b.min.y);
-    return p;
+    Point2D cornerPoint;
+    cornerPoint.x = ((index & 1) ? box.max.x : box.min.x);
+    cornerPoint.y = ((index & 1) ? box.max.y : box.min.y);
+    return cornerPoint;
 }
 
-int IntersectMovingSphereAABB(Sphere sphere, Vector2D d, AABB b, float* t)
+int IntersectMovingSphereAABB(Sphere sphere, Vector2D direction, AABB box, float* intersection_time)
 {
     /* Compute the AABB resulting from expanding b by sphere radius r */
-    AABB aabb = b;
-    aabb.min.x -= sphere.radius;
-    aabb.min.y -= sphere.radius;
-    aabb.max.x += sphere.radius;
-    aabb.max.y += sphere.radius;
+    AABB expanded_box = box;
+    expanded_box.min.x -= sphere.radius; 
+    expanded_box.min.y -= sphere.radius;
+    expanded_box.max.x += sphere.radius; 
+    expanded_box.max.y += sphere.radius;
 
     /*
     Intersect ray against expanded AABB e. Exit with no intersection if ray
     misses e, else get intersection point p and time t as result
     */
-    Point p;
-    if ( !IntersectRayAABB(sphere.center, d, aabb, t, &p) || (*t) > 1.0f )
+    Point2D intersection_point;
+    if ( !IntersectRayAABB(sphere.center, direction, expanded_box, intersection_time, &intersection_point) || (*intersection_time) > 1.0f )
         return 0;
 
     /*
@@ -273,37 +273,40 @@ int IntersectMovingSphereAABB(Sphere sphere, Vector2D d, AABB b, float* t)
     outside of. Note, u and v cannot have the same bits set and
     they must have at least one bit set among them
     */
-    int u = 0, v = 0;
-    if (p.x < b.min.x) u |= 1;
-    if (p.x > b.max.x) v |= 1;
-    if (p.y < b.min.y) u |= 2;
-    if (p.y > b.max.y) v |= 2;
+    /*  outside_min = 00, outside_max = 00*/
+    int outside_min = 0, outside_max = 0;
+    if (intersection_point.x < box.min.x) outside_min |= 1;
+    if (intersection_point.y < box.min.y) outside_min |= 2;
+
+    if (intersection_point.x > box.max.x) outside_max |= 1;
+    if (intersection_point.y > box.max.y) outside_max |= 2;
 
     /* ‘Or’ all set bits together into a bit mask (note: here u + v == u | v) */
-    int m = u + v;
+    int bitmask = outside_min + outside_max;
 
     /* Define line segment [c, c+d] specified by the sphere movement */
     Segment segment;
     segment.p1 = sphere.center;
-    segment.p2 = add_2d_vectors(sphere.center, d);
+    segment.p2 = add_2d_vectors(sphere.center, direction);
     
-
     /* If all 3 bits set (m == 3) then p is in a vertex region */
-    if (m == 3) {
-
+    if (bitmask == 3) {
         /* Must now intersect segment [c, c+d] against the capsules of the two */
         /* edges meeting at the vertex and return the best time, if one or more hit */
-        float tmin = FLT_MAX;
-        if ( IntersectSegmentCapsule(segment, Corner(b, v), Corner(b, v ^ 1), sphere.radius, t))
-            tmin = my_min((*t), tmin);
+        float minimum_time = FLT_MAX;
+        if ( IntersectSegmentCapsule(segment, Corner(box, outside_max), Corner(box, outside_max ^ 1), sphere.radius, intersection_time))
+            minimum_time = my_min((*intersection_time), minimum_time);
+        if ( IntersectSegmentCapsule(segment, Corner(box, outside_max), Corner(box, outside_max ^ 2), sphere.radius, intersection_time))
+            minimum_time = my_min((*intersection_time), minimum_time);
+            
 
-        if (tmin == FLT_MAX) return 0; /* No intersection */
-        (*t) = tmin;
+        if (minimum_time == FLT_MAX) return 0; /* No intersection */
+        (*intersection_time) = minimum_time;
         return 1; /* Intersection at time t == tmin */
     }
 
     /* If only one bit set in m, then p is in a face region */
-    if ((m & (m - 1)) == 0)
+    if ((bitmask & (bitmask - 1)) == 0)
     {
         /*
             Do nothing. Time t from intersection with
@@ -313,7 +316,7 @@ int IntersectMovingSphereAABB(Sphere sphere, Vector2D d, AABB b, float* t)
     }
 
     /* p is in an edge region. Intersect against the capsule at the edge */
-    return IntersectSegmentCapsule(segment, Corner(b, u & 3), Corner(b, v), sphere.radius, t);
+    return IntersectSegmentCapsule(segment, Corner(box, outside_min ^ 3), Corner(box, outside_max), sphere.radius, intersection_time);
 }
 
 
