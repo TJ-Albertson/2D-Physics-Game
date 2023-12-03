@@ -3,12 +3,14 @@
 
 #include "my_math/basic.h"
 
-typedef struct Vector2D
-{
-    float x;
-    float y;
-}
-Vector2D;
+typedef struct Vector2D {
+    union {
+        struct {
+            float x, y;
+        };
+        float data[2];
+    };
+} Vector2D;
 
 typedef struct Vector3D
 {

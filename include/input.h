@@ -7,8 +7,8 @@
 #include <physics.h>
 
 typedef enum Input_Type {
-    FORWARD,
-    BACKWARD,
+    UP,
+    DOWN,
     LEFT,
     RIGHT,
     JUMP,
@@ -27,16 +27,15 @@ void ProcessKeyboard(Camera *camera, Input_Type input, Vector2D* velocity)
     {
         switch (input)
         {
-        case CAMERA_LEFT:
+        case LEFT:
             velocity->x += 0.1f * dt;
             break;
 
-        case CAMERA_RIGHT:
+        case RIGHT:
             velocity->x -= 0.1f * dt;
             break;
 
         case JUMP: {
-            printf("jump\n");
             velocity->y = velocity->y + 0.1f * dt;
         }
             
@@ -52,19 +51,19 @@ void ProcessKeyboard(Camera *camera, Input_Type input, Vector2D* velocity)
     {
         switch (input)
         {
-        case CAMERA_LEFT:
+        case LEFT:
             camera->Position.x += 0.1f;
             break;
 
-        case CAMERA_RIGHT:
+        case RIGHT:
             camera->Position.x -= 0.1f;
             break;
 
-        case CAMERA_UP:
+        case UP:
             camera->Position.y += 0.1f;
             break;
 
-        case CAMERA_DOWN:
+        case DOWN:
             camera->Position.y -= 0.1f;
             break;
 
@@ -86,13 +85,13 @@ void ProcessInput(GLFWwindow* window, Camera* camera, Vector2D* velocity)
 
    
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        ProcessKeyboard(camera, CAMERA_UP, velocity);
+        ProcessKeyboard(camera, UP, velocity);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        ProcessKeyboard(camera, CAMERA_DOWN, velocity);
+        ProcessKeyboard(camera, DOWN, velocity);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        ProcessKeyboard(camera, CAMERA_LEFT, velocity);
+        ProcessKeyboard(camera, LEFT, velocity);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        ProcessKeyboard(camera, CAMERA_RIGHT, velocity);
+        ProcessKeyboard(camera, RIGHT, velocity);
 
     
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
@@ -118,7 +117,7 @@ void ProcessMouseScroll(Camera* camera, float yoffset)
     switch (camera->Projection)
     {
     case ORTHOGRAPHIC: {
-        camera->Position.z -= (float)yoffset;
+        camera->Position.z -= (float)yoffset * 0.5f;
 
         if (camera->Position.z < 1.0f)
             camera->Position.z = 1.0f;

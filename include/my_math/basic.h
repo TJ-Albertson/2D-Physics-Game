@@ -10,6 +10,26 @@ double my_tanf(double x);
 
 double degreesToRadians(double degrees);
 
+void swap_float(float *a, float *b) {
+    float temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+int my_abs(int x) {
+    return (x < 0) ? -x : x;
+}
+
+int my_min(int a, int b) 
+{
+    return (a < b) ? a : b;
+}
+
+float my_min_float(float a, float b) {
+    return (a < b) ? a : b;
+}
+
+
 /* Function to compute tangent using the tangent addition formula  */ 
 double my_tanf(double x) 
 {

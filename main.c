@@ -111,8 +111,6 @@ int main() {
 
         accumulator += frameTime;
 
-        
-
         while (accumulator >= dt) {
             previousState = currentState;
             IntegrateState(&currentState, t, dt * devTimeMultiplier);
@@ -129,7 +127,7 @@ int main() {
         state.position.x = currentState.position.x * alpha + previousState.position.x * (1.0f - alpha);
         state.position.y = currentState.position.y * alpha + previousState.position.y * (1.0f - alpha);
 
-        printf("state.position.y: %f\n", state.position.y);
+       
 
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -138,10 +136,11 @@ int main() {
         Mat4* orthographic = ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 100.0f);
 
         
-
         playerCamera.Position.x = state.position.x;
         playerCamera.Position.y = state.position.y;
 
+
+       
 
         Mat4* view = GetViewMatrix(playerCamera);
 
@@ -193,6 +192,7 @@ GLFWwindow* initialize_window()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_SAMPLES, 8);
 
     GLFWwindow* glfw_window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "2D Physics Game", NULL, NULL);
     if (!glfw_window) {
@@ -213,6 +213,7 @@ GLFWwindow* initialize_window()
     /*  glEnable(GL_DEPTH_TEST); */
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_MULTISAMPLE);  
     
     return glfw_window;
 }

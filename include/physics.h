@@ -11,7 +11,7 @@ typedef struct State {
     Vector2D velocity;
 } State;
 
-Vector2D gravity = { 0.0f, -0.01f };
+Vector2D gravity = { 0.0f, -0.001f };
 
 float t = 0.0;
 float dt = 0.01;
