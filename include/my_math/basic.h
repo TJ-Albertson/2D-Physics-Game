@@ -7,7 +7,6 @@
 
 double my_fmod(double x, double y);
 double my_tanf(double x);
-
 double degreesToRadians(double degrees);
 
 void swap_float(float *a, float *b) {
@@ -96,6 +95,10 @@ double my_sqrt(double x) {
     }
 
     return guess;
+}
+
+double my_fabs(double x) {
+    return (x < 0) ? -x : x;
 }
 
 #endif /* BASIC_H */
