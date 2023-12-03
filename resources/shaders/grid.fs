@@ -2,6 +2,7 @@
 out vec4 FragColor;
 
 uniform vec2 offset;
+uniform vec3 color;
 
 uniform float gridSize;
 uniform float lineThickness;
@@ -12,13 +13,10 @@ void main() {
 
     vec4 uniformColor = vec4(offset, gridSize, lineThickness);
 
-    float gridSize = 150.0f;
-    float lineThickness = 0.05;
-
     bool isGrid = mod((FragCoord + offset).x * gridSize, 1.0) < lineThickness || mod((FragCoord + offset).y * gridSize, 1.0) < lineThickness;
-    vec3 color = isGrid ? vec3(0.3, 0.3, 0.3) : vec3(1.0, 1.0, 1.0);
+    vec3 color = isGrid ? vec3(0.25f, 0.25f, 0.25f) : vec3(1.0, 1.0, 1.0);
 
-    FragColor = vec4(color, 0.1f);
+    FragColor = vec4(color, 0.35f);
 
     if (FragCoord.x < -10) {
         FragColor = uniformColor;

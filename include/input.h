@@ -37,7 +37,7 @@ void ProcessKeyboard(Camera *camera, Input_Type input, Vector2D* velocity)
 
         case JUMP: {
             printf("jump\n");
-            velocity->y = velocity->y + 0.5f * dt;
+            velocity->y = velocity->y + 0.1f * dt;
         }
             
             break;

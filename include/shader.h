@@ -61,7 +61,7 @@ void setShaderVec2(unsigned int shaderID, const char* name, float x, float y)
 
     int location = glGetUniformLocation(shaderID, name);
 
-    if (location == -1) {
+    if (location != -1) {
           glUniform2f(location, x, y);
       
     } else {
@@ -78,7 +78,7 @@ void setShaderFloat(unsigned int shaderID, const char* name, float value)
 {
     int location = glGetUniformLocation(shaderID, name);
 
-    if (location == -1) {
+    if (location != -1) {
         glUniform1f(location, value);
       
     } else {

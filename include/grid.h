@@ -12,7 +12,7 @@ void DrawGrid(unsigned int ShaderID, unsigned int VAO, Mat4* perspect, Mat4* vie
     setShaderMat4(ShaderID, "projection", perspect);
     setShaderMat4(ShaderID, "view", view);
 
-    float grid_scale = 25;
+    float grid_scale = 150;
     float grid_move_speed = 1.0f / grid_scale;
 
     Mat4 grid_model;
@@ -22,12 +22,19 @@ void DrawGrid(unsigned int ShaderID, unsigned int VAO, Mat4* perspect, Mat4* vie
     setShaderMat4(ShaderID, "model", &grid_model);
 
     setShaderVec2(ShaderID, "offset", playerCamera.Position.x * grid_move_speed, playerCamera.Position.y * grid_move_speed);
-    setShaderFloat(ShaderID, "gridSize", 150.0);
+    setShaderFloat(ShaderID, "gridSize", 50.0);
     setShaderFloat(ShaderID, "lineThickness", 0.05f);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);    
+    
+    setShaderVec2(ShaderID, "offset", playerCamera.Position.x * grid_move_speed + 3, playerCamera.Position.y * grid_move_speed + 3);
+    setShaderFloat(ShaderID, "gridSize", 10.0);
+    setShaderFloat(ShaderID, "lineThickness", 0.01f);
+
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);   
+
 }
 
 #endif /* GRID_H */
