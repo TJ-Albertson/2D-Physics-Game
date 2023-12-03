@@ -36,10 +36,15 @@ void ProcessKeyboard(Camera *camera, Input_Type input, Vector2D* velocity)
             break;
 
         case JUMP: {
-            velocity->y = velocity->y + 0.1f * dt;
-        }
+            velocity->y += 0.1f * dt;
+        } break;
+        case UP: {
+            velocity->y += 0.1f * dt;
+        } break;
             
-            break;
+        case DOWN: {
+            velocity->y -= 0.1f * dt;
+        } break;        
 
         default:
             break;

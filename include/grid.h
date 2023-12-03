@@ -46,8 +46,6 @@ void DrawGrid(unsigned int ShaderID, unsigned int VAO, Mat4 *perspect, Mat4 *vie
 
     float color_line_thickness = 0.0005f * playerCamera.Position.z;
 
-    printf("color_line_thickness: %f\n", color_line_thickness);
-
     /* Red */
     setShaderVec4(ShaderID, "color", 1.0f, 0.0f, 0.0f, 0.35f);
     setShaderFloat(ShaderID, "gridSize", 12.5);

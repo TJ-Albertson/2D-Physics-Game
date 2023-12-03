@@ -52,7 +52,6 @@ uint32_t collisionFlags = 0;
 State objectState[32];
 CollisionData collisionData[32]; 
 
-
 void CollisionResponse(int objectIndex)
 {
     State object_state = objectState[objectIndex];
@@ -62,7 +61,9 @@ void CollisionResponse(int objectIndex)
 
 void CheckCollisions(uint32_t collisionFlags, int numDynamicObjects)
 {
-    for (int i = numDynamicObjects; i >= 0; i--) {
+    int i;
+
+    for (i = numDynamicObjects; i >= 0; i--) {
 
         uint32_t mask = 1 << i;
         int colliding = (collisionFlags & mask) ? 1 : 0;
@@ -92,9 +93,11 @@ int MovingObject_StaticTriangle_Collision(Object object, Triangle triangle)
 
 void CollisionDetection(Triangle* triangles, int numTriangles, Object* objects, int numObjects)
 {
-    for (int i = 0; i < numObjects; ++i) 
+    int i, j;
+
+    for (i = 0; i < numObjects; ++i) 
     {
-        for (int j = 0; j < numTriangles; ++j)
+        for (j = 0; j < numTriangles; ++j)
         {
             int collision = MovingObject_StaticTriangle_Collision(objects[i], triangles[j]);
 
@@ -109,22 +112,19 @@ void CollisionDetection(Triangle* triangles, int numTriangles, Object* objects, 
 }
 
 
-void PlayerCollisionDetection(State state)
-{
-
-}
 
 /*
    Intersect ray R(t) = p + t*d against AABB a. When intersecting,
    return intersection distance tmin and point q of intersection
 */
-int IntersectRayAABB(Point point, Vector2D d, AABB aabb, float* tmin, Point &q)
+int IntersectRayAABB(Point point, Vector2D d, AABB aabb, float* tmin, Point* q)
 {
     (*tmin) = 0.0f;          /* set to -FLT_MAX to get first hit on line */
     float tmax = FLT_MAX;    /* set to max distance ray can travel (for segment) */
 
+    int i;
     /* For all three slabs */
-    for (int i = 0; i < 2; i++)
+    for (i = 0; i < 2; i++)
     {
         if (my_abs(d.data[i]) < EPSILON)
         {
@@ -153,8 +153,8 @@ int IntersectRayAABB(Point point, Vector2D d, AABB aabb, float* tmin, Point &q)
     }
 
     /* Ray intersects all 3 slabs. Return point (q) and intersection t value (tmin) */
-    q.x = point.x + d.x * (*tmin);
-    q.y = point.y + d.y * (*tmin);
+    (*q).x = point.x + d.x * (*tmin);
+    (*q).y = point.y + d.y * (*tmin);
     return 1;
 }
 
@@ -265,7 +265,7 @@ int IntersectMovingSphereAABB(Sphere sphere, Vector2D d, AABB b, float* t)
     misses e, else get intersection point p and time t as result
     */
     Point p;
-    if ( !IntersectRayAABB(sphere.center, d, aabb, t, p) || (*t) > 1.0f )
+    if ( !IntersectRayAABB(sphere.center, d, aabb, t, &p) || (*t) > 1.0f )
         return 0;
 
     /*
@@ -314,6 +314,30 @@ int IntersectMovingSphereAABB(Sphere sphere, Vector2D d, AABB b, float* t)
 
     /* p is in an edge region. Intersect against the capsule at the edge */
     return IntersectSegmentCapsule(segment, Corner(b, u & 3), Corner(b, v), sphere.radius, t);
+}
+
+
+int playerColliding = 0;
+
+void PlayerCollision(State* state, AABB aabb) 
+{
+    Sphere collisionSphere;
+    collisionSphere.center = state->position;
+    collisionSphere.radius = 0.5f;
+
+    float time_of_collision;
+
+    Vector2D velocity;
+    velocity.x = state->velocity.x * 0.01f;
+    velocity.y = state->velocity.y * 0.01f;
+
+    int collision = IntersectMovingSphereAABB(collisionSphere, velocity, aabb, &time_of_collision);
+    playerColliding = collision;
+
+    if (collision)
+    {
+        printf("!!!collision!!!\n");
+    }
 }
 
 

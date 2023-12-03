@@ -14,6 +14,7 @@
 #include <grid.h>
 #include <shapes.h>
 #include <physics.h>    
+#include <collision.h>  
 
 unsigned int SCR_WIDTH = 2000;
 unsigned int SCR_HEIGHT = 1200;
@@ -28,6 +29,8 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 Camera playerCamera;
 GLFWwindow* glfw_window;
 
+AABB aabb_platform;
+
 void IntegrateState(State* state, float time, float dt)
 {
     
@@ -38,9 +41,11 @@ void IntegrateState(State* state, float time, float dt)
 
     ProcessInput(glfw_window, &playerCamera, &velocity);
 
-    velocity.x = velocity.x + acceleration.x * dt;
-    velocity.y = velocity.y + acceleration.y * dt;
+    float friction_coefficient = 0.2f;
+    velocity.x = velocity.x + (acceleration.x - friction_coefficient * velocity.x) * dt;
+    velocity.y = velocity.y + (acceleration.y - friction_coefficient * velocity.y) * dt;
 
+    PlayerCollision(state, aabb_platform);
     /*Collision(velocity, state.position, dt); */
 
     position.x = position.x + velocity.x * dt;
@@ -76,7 +81,15 @@ int main() {
     platform.width = 5.0f;
     platform.height = 2.0f;
     platform.position.x = 0.0f;
-    platform.position.y = -3.0f;
+    platform.position.y = -2.0f;
+
+    float halfWidth = (platform.width * 2) / 2.0f;
+    float halfHeight = (platform.height * 2) / 2.0f;
+
+    aabb_platform.min.x = platform.position.x - halfWidth;
+    aabb_platform.min.y = platform.position.y - halfHeight;
+    aabb_platform.max.x = platform.position.x + halfWidth;
+    aabb_platform.max.y = platform.position.y + halfHeight;
 
     
 
@@ -160,6 +173,12 @@ int main() {
         clear_matrix(&model);
         translateMat4(&model, state.position.x, state.position.y, 0.0f);
         setShaderMat4(basicShader, "model", &model);
+
+        setShaderVec4(basicShader, "color", 0.0f, 1.0f, 0.0f, 1.0f);
+        if(playerColliding)
+        {
+            setShaderVec4(basicShader, "color", 1.0f, 0.0f, 0.0f, 1.0f);
+        }
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureID);

@@ -15,5 +15,12 @@ void main()
         return;
     }
 
-    FragColor = texture(texture1, TexCoords);
+    vec4 texture_color = texture(texture1, TexCoords);
+
+    if (texture_color.w > 0.0f)
+    {
+        texture_color = color;
+    }
+
+    FragColor = texture_color;
 }
