@@ -39,6 +39,13 @@ void subtract(Vector3D *result, const Vector3D *v1, const Vector3D *v2) {
     result->z = v1->z - v2->z;
 }
 
+Vector2D subtract_2d_vectors(const Vector2D a, const Vector2D b) {
+    Vector2D result;
+    result.x = a.x - b.x;
+    result.y = a.y - b.y;
+    return result;
+}
+
 float dot_2d_vectors(Vector2D a, Vector2D b) {
     return a.x * b.x + a.y * b.y;
 }

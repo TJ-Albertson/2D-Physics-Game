@@ -69,6 +69,9 @@ int main() {
     unsigned int circle_VAO = load_wavefront("resources/textures/circle.obj");
     unsigned int textureID = LoadTexture("resources/textures/blue_circle.png");
 
+    unsigned int circle_VAO2 = load_wavefront("resources/textures/circle2.obj");
+    unsigned int textureID2 = LoadTexture("resources/textures/circle.png");
+
     Sprite sprite;
     InitSprite(&sprite, "resources/textures/circle.png");
 
@@ -169,23 +172,49 @@ int main() {
         DrawPlatform(basicShader, squareVAO, platform);
         
 
+        
+        
+        /* collision_point */
+        if(playerColliding)
+        {
+            setShaderVec4(basicShader, "color", 1.0f, 1.0f, 0.0f, 1.0f);
+        
+            Mat4 model;
+            clear_matrix(&model);
+            translateMat4(&model, collisionPoint.x, collisionPoint.y, 0.0f);
+            scaleMat4(&model, 0.1f, 0.1f, 0.1f);
+            setShaderMat4(basicShader, "model", &model);
+
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, textureID2);
+
+            glBindVertexArray(circle_VAO2);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glBindVertexArray(0);
+
+            /* for actual sphere */
+            
+        }
+
         Mat4 model;
         clear_matrix(&model);
         translateMat4(&model, state.position.x, state.position.y, 0.0f);
         setShaderMat4(basicShader, "model", &model);
 
         setShaderVec4(basicShader, "color", 0.0f, 1.0f, 0.0f, 1.0f);
+
         if(playerColliding)
         {
             setShaderVec4(basicShader, "color", 1.0f, 0.0f, 0.0f, 1.0f);
         }
-
+        
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, textureID);
 
         glBindVertexArray(circle_VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
+
 
         /* End */
         glfwSwapBuffers(glfw_window);

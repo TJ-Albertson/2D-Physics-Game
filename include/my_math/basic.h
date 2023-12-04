@@ -24,7 +24,11 @@ int my_min(int a, int b)
     return (a < b) ? a : b;
 }
 
-float my_min_float(float a, float b) {
+float my_fmaxf(float a, float b) {
+    return (a > b) ? a : b;
+}
+
+float my_fminf(float a, float b) {
     return (a < b) ? a : b;
 }
 

@@ -150,7 +150,7 @@ unsigned int load_wavefront(const char* filename)
 
     for (i = 0; i < numIndices; ++i)
     {
-        printf("indice[%d]:%d\n", i, indices[i]);
+        /* printf("indice[%d]:%d\n", i, indices[i]); */
     }
 
     GLuint vao;
