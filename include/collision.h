@@ -325,7 +325,7 @@ int IntersectMovingSphereAABB(Sphere sphere, Vector2D direction, AABB box, float
     return IntersectSegmentCapsule(segment, Corner(box, outside_min ^ 3), Corner(box, outside_max), sphere.radius, intersection_time);
 }
 
-void ClosestPtPointAABB(Point2D p, AABB b, Point &q)
+void ClosestPtPointAABB(Point2D p, AABB b, Point2D &q)
 {
     /*
         For each coordinate axis, if the point coordinate value is
@@ -339,7 +339,7 @@ void ClosestPtPointAABB(Point2D p, AABB b, Point &q)
             v = b.min.data[i]; /* v = max(v, b.min[i]) */
         if (v > b.max.data[i])
             v = b.max.data[i]; /* v = min(v, b.max[i]) */
-        q[i] = v;
+        q.data[i] = v;
     }
 }
 
