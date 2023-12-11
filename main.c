@@ -45,7 +45,10 @@ void IntegrateState(State* state, float time, float dt)
     velocity.x = velocity.x + (acceleration.x - friction_coefficient * velocity.x) * dt;
     velocity.y = velocity.y + (acceleration.y - friction_coefficient * velocity.y) * dt;
 
-    PlayerCollision(state, aabb_platform);
+    /* PlayerCollision(state, aabb_platform); */
+    CollisionDetection();
+    CollisionResponse();
+    
     /*Collision(velocity, state.position, dt); */
 
     position.x = position.x + velocity.x * dt;
@@ -94,8 +97,6 @@ int main() {
     aabb_platform.max.x = platform.position.x + halfWidth;
     aabb_platform.max.y = platform.position.y + halfHeight;
 
-    
-
     float currentTime = glfwGetTime();
     float accumulator = 0.0;
 
@@ -104,9 +105,32 @@ int main() {
     state.velocity.x = 0.0f;
     state.velocity.y = 0.0f;
 
+    /* new collision */
+    initialize_collision();
+    boxes[0] = aabb_platform;
+    num_boxes++;
+
+    DynamicObject dynamic_object;
+    dynamic_object.state.position.x = 0.0f;
+    dynamic_object.state.position.y = 0.0f;
+    dynamic_object.state.velocity.x = 0.0f;
+    dynamic_object.state.velocity.y = 0.0f;
+
+    dynamic_object.type = DYNAMIC_SPHERE;
+    dynamic_object.collider.sphere.center.x = 0.0f;
+    dynamic_object.collider.sphere.center.y = 1.0f;
+    dynamic_object.collider.sphere.radius = 0.5f;
+
+    dynamic_objects[0] = dynamic_object;
+    num_dynamic_objects++;
+    /* new collision */
+
     State previousState;
-    State currentState = state;
+    State currentState = dynamic_objects[0].state; /* state; */
+
+
     double prevTime = glfwGetTime();
+
 
     
     glUseProgram(basicShader);
@@ -137,13 +161,13 @@ int main() {
         const float alpha = accumulator / dt;
 
         /* interpolating between pevious and current state */
-        state.velocity.x = currentState.velocity.x * alpha + previousState.velocity.x * (1.0f - alpha);
-        state.velocity.y = currentState.velocity.y * alpha + previousState.velocity.y * (1.0f - alpha);
+        dynamic_objects[0].state.velocity.x = currentState.velocity.x * alpha + previousState.velocity.x * (1.0f - alpha);
+        dynamic_objects[0].state.velocity.y = currentState.velocity.y * alpha + previousState.velocity.y * (1.0f - alpha);
 
-        state.position.x = currentState.position.x * alpha + previousState.position.x * (1.0f - alpha);
-        state.position.y = currentState.position.y * alpha + previousState.position.y * (1.0f - alpha);
+        dynamic_objects[0].state.position.x = currentState.position.x * alpha + previousState.position.x * (1.0f - alpha);
+        dynamic_objects[0].state.position.y = currentState.position.y * alpha + previousState.position.y * (1.0f - alpha);
 
-       
+        /* printf("dynamic_object.state.position: x%f y%f\n", dynamic_object.state.position.x, dynamic_object.state.position.y); */
 
         glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -152,8 +176,8 @@ int main() {
         Mat4* orthographic = ortho(-1.0f, 1.0f, -1.0f, 1.0f, 0.1f, 100.0f);
 
         
-        playerCamera.Position.x = state.position.x;
-        playerCamera.Position.y = state.position.y;
+        playerCamera.Position.x = dynamic_objects[0].state.position.x;
+        playerCamera.Position.y = dynamic_objects[0].state.position.y;
 
 
        
@@ -198,7 +222,7 @@ int main() {
 
         Mat4 model;
         clear_matrix(&model);
-        translateMat4(&model, state.position.x, state.position.y, 0.0f);
+        translateMat4(&model, dynamic_objects[0].state.position.x, dynamic_objects[0].state.position.y, 0.0f);
         setShaderMat4(basicShader, "model", &model);
 
         setShaderVec4(basicShader, "color", 0.0f, 1.0f, 0.0f, 1.0f);
