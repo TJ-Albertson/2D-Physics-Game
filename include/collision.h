@@ -455,10 +455,10 @@ void dynamic_objects_generate(int count)
 
 void initialize_collision()
 {
-    static_collisions = (StaticCollision*)malloc(10 * sizeof(StaticCollision));
-    dynamic_collisions = (DynamicCollision*)malloc(10 * sizeof(DynamicCollision));
-    boxes = (AABB*)malloc(10 * sizeof(AABB));
-    dynamic_objects = (DynamicObject*)malloc(10 * sizeof(DynamicObject));
+    static_collisions =   (StaticCollision*)malloc(20 * sizeof(StaticCollision));
+    dynamic_collisions = (DynamicCollision*)malloc(20 * sizeof(DynamicCollision));
+    boxes =                          (AABB*)malloc(10 * sizeof(AABB));
+    dynamic_objects =       (DynamicObject*)malloc(20 * sizeof(DynamicObject));
 }
 
 
