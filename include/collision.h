@@ -434,12 +434,24 @@ void dynamic_objects_generate(int count)
         int seed_y = i + 5;
 
         DynamicObject dynamic_object;
-        dynamic_object.state.position.x = custom_rand(&seed_x, min, max);
-        dynamic_object.state.position.y = custom_rand(&seed_y, min, max);
+
+        int position_x = custom_rand(&seed_x, min, max);
+        int position_y = custom_rand(&seed_y, min, max);
+
+        dynamic_object.state.position.x = position_x;
+        dynamic_object.state.position.y = position_y;
         dynamic_object.state.velocity.x = 0.0f;
         dynamic_object.state.velocity.y = 0.0f;
 
-        dynamic_object.currentState = dynamic_object.state;
+        dynamic_object.currentState.position.x = position_x;
+        dynamic_object.currentState.position.y = position_y;
+        dynamic_object.currentState.velocity.x = 0.0f;
+        dynamic_object.currentState.velocity.y = 0.0f;
+
+        dynamic_object.previousState.position.x = position_x;
+        dynamic_object.previousState.position.y = position_y;
+        dynamic_object.previousState.velocity.x = 0.0f;
+        dynamic_object.previousState.velocity.y = 0.0f;
 
         dynamic_object.type = DYNAMIC_SPHERE;
         dynamic_object.collider.sphere.center.x = 0.0f;

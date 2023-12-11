@@ -116,6 +116,16 @@ int main() {
     dynamic_object.state.velocity.x = 0.0f;
     dynamic_object.state.velocity.y = 0.0f;
 
+    dynamic_object.currentState.position.x = 0.0f;
+    dynamic_object.currentState.position.y = 0.0f;
+    dynamic_object.currentState.velocity.x = 0.0f;
+    dynamic_object.currentState.velocity.y = 0.0f;
+
+    dynamic_object.previousState.position.x = 0.0f;
+    dynamic_object.previousState.position.y = 0.0f;
+    dynamic_object.previousState.velocity.x = 0.0f;
+    dynamic_object.previousState.velocity.y = 0.0f;
+
     dynamic_object.type = DYNAMIC_SPHERE;
     dynamic_object.collider.sphere.center.x = 0.0f;
     dynamic_object.collider.sphere.center.y = 0.0f;
@@ -126,10 +136,6 @@ int main() {
 
     dynamic_objects_generate(5);
     /* new collision */
-
-
-    State previousState;
-    State currentState = dynamic_objects[0].state; /* state; */
 
 
     double prevTime = glfwGetTime();
@@ -183,8 +189,8 @@ int main() {
             dynamic_objects[i].state.position.x = dynamic_objects[i].currentState.position.x * alpha + dynamic_objects[i].previousState.position.x * (1.0f - alpha);
             dynamic_objects[i].state.position.y = dynamic_objects[i].currentState.position.y * alpha + dynamic_objects[i].previousState.position.y * (1.0f - alpha);
         }
-        
 
+        
 
         /* printf("dynamic_object.state.position: x%f y%f\n", dynamic_object.state.position.x, dynamic_object.state.position.y); */
 
