@@ -124,7 +124,7 @@ int main() {
     dynamic_objects[0] = dynamic_object;
     num_dynamic_objects++;
 
-   /* dynamic_objects_generate(3);*/
+    dynamic_objects_generate(5);
     /* new collision */
 
 
@@ -134,8 +134,6 @@ int main() {
 
     double prevTime = glfwGetTime();
 
-
-    
     glUseProgram(basicShader);
     glUniform1i(glGetUniformLocation(basicShader, "texture1"), 0);
 
@@ -155,8 +153,14 @@ int main() {
         accumulator += frameTime;
 
         while (accumulator >= dt) {
-            previousState = currentState;
-            IntegrateState(&currentState, t, dt * devTimeMultiplier);
+
+            int i;
+            for(i = 0; i < num_dynamic_objects; ++i)
+            {
+                dynamic_objects[i].previousState = dynamic_objects[i].currentState;
+                IntegrateState(&dynamic_objects[i].currentState, t, dt * devTimeMultiplier);
+            }
+            
             t += dt;
             accumulator -= dt;
         }
@@ -164,11 +168,17 @@ int main() {
         const float alpha = accumulator / dt;
 
         /* interpolating between pevious and current state */
-        dynamic_objects[0].state.velocity.x = currentState.velocity.x * alpha + previousState.velocity.x * (1.0f - alpha);
-        dynamic_objects[0].state.velocity.y = currentState.velocity.y * alpha + previousState.velocity.y * (1.0f - alpha);
+        int i;
+        for(i = 0; i < num_dynamic_objects; ++i)
+        {
+            dynamic_objects[i].state.velocity.x = dynamic_objects[i].currentState.velocity.x * alpha + dynamic_objects[i].previousState.velocity.x * (1.0f - alpha);
+            dynamic_objects[i].state.velocity.y =  dynamic_objects[i].currentState.velocity.y * alpha + dynamic_objects[i].previousState.velocity.y * (1.0f - alpha);
 
-        dynamic_objects[0].state.position.x = currentState.position.x * alpha + previousState.position.x * (1.0f - alpha);
-        dynamic_objects[0].state.position.y = currentState.position.y * alpha + previousState.position.y * (1.0f - alpha);
+            dynamic_objects[i].state.position.x = dynamic_objects[i].currentState.position.x * alpha + dynamic_objects[i].previousState.position.x * (1.0f - alpha);
+            dynamic_objects[i].state.position.y = dynamic_objects[i].currentState.position.y * alpha + dynamic_objects[i].previousState.position.y * (1.0f - alpha);
+        }
+        
+
 
         /* printf("dynamic_object.state.position: x%f y%f\n", dynamic_object.state.position.x, dynamic_object.state.position.y); */
 
@@ -226,7 +236,6 @@ int main() {
             
         }
 
-        int i;
         for (i = 0; i < num_dynamic_objects; ++i)
         {
             Mat4 model;
@@ -237,8 +246,6 @@ int main() {
             setShaderVec4(basicShader, "color", 0.0f, 1.0f, 0.0f, 1.0f);
 
             uint8_t collision_flag = (dynamic_objects[i].flags >> 0) & 1;
-
-            printf("dynamic_objects[%d] collision flag: %u\n", i, collision_flag);
 
             if(collision_flag)
             {

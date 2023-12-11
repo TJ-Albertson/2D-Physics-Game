@@ -377,7 +377,11 @@ typedef enum {
 typedef struct {
     DynamicObjectType type;
     Collider collider;
+
+    State previousState;
     State state;
+    State currentState;
+
     uint8_t flags;
 } DynamicObject;
 
@@ -420,19 +424,22 @@ unsigned int custom_rand(unsigned int *seed, unsigned int min, unsigned int max)
 
 void dynamic_objects_generate(int count)
 {   
-    int min = -20;
-    int max = 20;
+    int min = -5;
+    int max = 5;
 
     int i;
     for (i = 0; i < count; ++i)
     {
-        int seed_y = i + 50;
+        int seed_x = i;
+        int seed_y = i + 5;
 
         DynamicObject dynamic_object;
-        dynamic_object.state.position.x = custom_rand(&i, min, max);
+        dynamic_object.state.position.x = custom_rand(&seed_x, min, max);
         dynamic_object.state.position.y = custom_rand(&seed_y, min, max);
         dynamic_object.state.velocity.x = 0.0f;
         dynamic_object.state.velocity.y = 0.0f;
+
+        dynamic_object.currentState = dynamic_object.state;
 
         dynamic_object.type = DYNAMIC_SPHERE;
         dynamic_object.collider.sphere.center.x = 0.0f;
