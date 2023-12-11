@@ -39,7 +39,7 @@ void IntegrateState(State* state, float time, float dt)
 
     Vector2D acceleration = gravity;
 
-    ProcessInput(glfw_window, &playerCamera, &velocity);
+    
 
     float friction_coefficient = 1.0f;
     velocity.x = velocity.x + (acceleration.x - friction_coefficient * velocity.x) * dt;
@@ -158,6 +158,12 @@ int main() {
             for(i = 0; i < num_dynamic_objects; ++i)
             {
                 dynamic_objects[i].previousState = dynamic_objects[i].currentState;
+                
+                if (i == 0)
+                {
+                    ProcessInput(glfw_window, &playerCamera, &dynamic_objects[i].currentState.velocity);
+                }
+                
                 IntegrateState(&dynamic_objects[i].currentState, t, dt * devTimeMultiplier);
             }
             
@@ -172,7 +178,7 @@ int main() {
         for(i = 0; i < num_dynamic_objects; ++i)
         {
             dynamic_objects[i].state.velocity.x = dynamic_objects[i].currentState.velocity.x * alpha + dynamic_objects[i].previousState.velocity.x * (1.0f - alpha);
-            dynamic_objects[i].state.velocity.y =  dynamic_objects[i].currentState.velocity.y * alpha + dynamic_objects[i].previousState.velocity.y * (1.0f - alpha);
+            dynamic_objects[i].state.velocity.y = dynamic_objects[i].currentState.velocity.y * alpha + dynamic_objects[i].previousState.velocity.y * (1.0f - alpha);
 
             dynamic_objects[i].state.position.x = dynamic_objects[i].currentState.position.x * alpha + dynamic_objects[i].previousState.position.x * (1.0f - alpha);
             dynamic_objects[i].state.position.y = dynamic_objects[i].currentState.position.y * alpha + dynamic_objects[i].previousState.position.y * (1.0f - alpha);
