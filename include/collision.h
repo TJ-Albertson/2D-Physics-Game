@@ -378,6 +378,7 @@ typedef struct {
     DynamicObjectType type;
     Collider collider;
     State state;
+    uint8_t flags;
 } DynamicObject;
 
 typedef struct {
@@ -404,6 +405,44 @@ StaticCollision* static_collisions;
 
 int num_dynamic_collisions;
 DynamicCollision* dynamic_collisions;
+
+
+/* Linear Congruential Generator parameters */
+#define A 1103515245
+#define C 12345
+#define M 32768
+
+/* Function to generate a pseudo-random number within a specified range [min, max] */
+unsigned int custom_rand(unsigned int *seed, unsigned int min, unsigned int max) {
+    *seed = (*seed * A + C) % M;
+    return min + (*seed % (max - min + 1));
+}
+
+void dynamic_objects_generate(int count)
+{   
+    int min = -20;
+    int max = 20;
+
+    int i;
+    for (i = 0; i < count; ++i)
+    {
+        int seed_y = i + 50;
+
+        DynamicObject dynamic_object;
+        dynamic_object.state.position.x = custom_rand(&i, min, max);
+        dynamic_object.state.position.y = custom_rand(&seed_y, min, max);
+        dynamic_object.state.velocity.x = 0.0f;
+        dynamic_object.state.velocity.y = 0.0f;
+
+        dynamic_object.type = DYNAMIC_SPHERE;
+        dynamic_object.collider.sphere.center.x = 0.0f;
+        dynamic_object.collider.sphere.center.y = 0.0f;
+        dynamic_object.collider.sphere.radius = 0.5f;
+
+        dynamic_objects[num_dynamic_objects] = dynamic_object;
+        num_dynamic_objects++;
+    }
+}
 
 
 
@@ -447,15 +486,15 @@ void CollisionResponse()
 */
 
 /* checks dynamic object with moving sphere against all aabbs*/
-void dynamic_sphere_aabbs(DynamicObject dynamic_object) 
+void dynamic_sphere_aabbs(DynamicObject* dynamic_object) 
 {
     
    
 
-    Sphere sphere = dynamic_object.collider.sphere;
-    sphere.center.x = dynamic_object.state.position.x;
-    sphere.center.y = dynamic_object.state.position.y;
-    Vector2D velocity = dynamic_object.state.velocity;
+    Sphere sphere = dynamic_object->collider.sphere;
+    sphere.center.x += dynamic_object->state.position.x;
+    sphere.center.y += dynamic_object->state.position.y;
+    Vector2D velocity = dynamic_object->state.velocity;
 
     velocity.x *= dt;
     velocity.y *= dt;
@@ -472,10 +511,15 @@ void dynamic_sphere_aabbs(DynamicObject dynamic_object)
         /* process collision */
         int colliding = IntersectMovingSphereAABB(sphere, velocity, box, &time_of_collision, &collision_point);
 
+        dynamic_object->flags &= ~(1 << 0);
+
         if (colliding) 
         {
+            /* colliding flag */
+            dynamic_object->flags |= (1 << 0);
+
             StaticCollision s_collision;
-            s_collision.dynamic_object = dynamic_object;
+            s_collision.dynamic_object = (*dynamic_object);
 
             s_collision.static_object.box = box;
             s_collision.static_type = STATIC_AABB;
@@ -488,9 +532,9 @@ void dynamic_sphere_aabbs(DynamicObject dynamic_object)
 }
 
 /* picks function based on dynamic object collider shape */
-void dynamic_object_aabbs(DynamicObject dynamic_object) 
+void dynamic_object_aabbs(DynamicObject* dynamic_object) 
 {
-    switch (dynamic_object.type)
+    switch (dynamic_object->type)
     {
     case DYNAMIC_SPHERE:
         dynamic_sphere_aabbs(dynamic_object);
@@ -502,7 +546,7 @@ void dynamic_object_aabbs(DynamicObject dynamic_object)
 }
 
 /* check dynamic object against static objects */
-void static_collision_detection(DynamicObject dynamic_object)
+void static_collision_detection(DynamicObject* dynamic_object)
 {
     dynamic_object_aabbs(dynamic_object);
 }
@@ -584,7 +628,7 @@ void CollisionDetection()
     int i;
     for(i = 0; i < num_dynamic_objects; ++i)
     {
-        static_collision_detection(dynamic_objects[i]);
+        static_collision_detection(&dynamic_objects[i]);
         /*
         int j;
         for (j = i + 1; j < num_dynamic_objects; ++j)
