@@ -58,6 +58,14 @@ void IntegrateState(State* state, float time, float dt)
     state->velocity = velocity;
 }
 
+void printBinary(uint8_t value) {
+    int i;
+    for (i = 7; i >= 0; i--) {
+        printf("%d", (value >> i) & 1);
+    }
+    printf("\n");
+}
+
 
 int main() {
 
@@ -130,6 +138,8 @@ int main() {
     dynamic_object.collider.sphere.center.x = 0.0f;
     dynamic_object.collider.sphere.center.y = 0.0f;
     dynamic_object.collider.sphere.radius = 0.5f;
+
+    dynamic_object.flags = 0.0f;
 
     dynamic_objects[0] = dynamic_object;
     num_dynamic_objects++;
@@ -257,11 +267,24 @@ int main() {
 
             setShaderVec4(basicShader, "color", 0.0f, 1.0f, 0.0f, 1.0f);
 
+            
+            printf("dynamic_objects[%d].flags: ", i);
+            printBinary(dynamic_objects[i].flags);
+            printf("\n");
+            
+
             uint8_t collision_flag = (dynamic_objects[i].flags >> 0) & 1;
 
             if(collision_flag)
             {
                 setShaderVec4(basicShader, "color", 1.0f, 0.0f, 0.0f, 1.0f);
+            }
+
+            uint8_t dynamic_collision = (dynamic_objects[i].flags >> 1) & 1;
+
+            if(dynamic_collision)
+            {
+                setShaderVec4(basicShader, "color", 0.0f, 0.0f, 1.0f, 1.0f);
             }
             
             glActiveTexture(GL_TEXTURE0);

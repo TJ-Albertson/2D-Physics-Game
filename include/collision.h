@@ -386,12 +386,12 @@ typedef struct {
 } DynamicObject;
 
 typedef struct {
-    DynamicObject dynamic_1;
-    DynamicObject dynamic_2;
+    DynamicObject *dynamic_1;
+    DynamicObject *dynamic_2;
 } DynamicCollision;
 
 typedef struct {
-    DynamicObject dynamic_object;
+    DynamicObject *dynamic_object;
 
     StaticObjectType static_type;
     StaticObject static_object;
@@ -458,6 +458,8 @@ void dynamic_objects_generate(int count)
         dynamic_object.collider.sphere.center.y = 0.0f;
         dynamic_object.collider.sphere.radius = 0.5f;
 
+        dynamic_object.flags = 0.0f;
+
         dynamic_objects[num_dynamic_objects] = dynamic_object;
         num_dynamic_objects++;
     }
@@ -481,14 +483,22 @@ void CollisionResponse()
     {
         StaticCollision s_collision = static_collisions[i];
 
+        DynamicObject* dynamic_object = s_collision.dynamic_object;
+
         /* processCollision(s_collision) */
+
     }
     num_static_collisions = 0;
 
     for(i = 0; i < num_dynamic_collisions; ++i)
     {
         DynamicCollision d_collision = dynamic_collisions[i];
+
+        DynamicObject* dynamic_object_1 = d_collision.dynamic_1;
+        DynamicObject* dynamic_object_2 = d_collision.dynamic_2;
+
     }
+    num_dynamic_collisions = 0;
 }
 
 
@@ -507,12 +517,10 @@ void CollisionResponse()
 /* checks dynamic object with moving sphere against all aabbs*/
 void dynamic_sphere_aabbs(DynamicObject* dynamic_object) 
 {
-    
-   
-
     Sphere sphere = dynamic_object->collider.sphere;
     sphere.center.x += dynamic_object->state.position.x;
     sphere.center.y += dynamic_object->state.position.y;
+
     Vector2D velocity = dynamic_object->state.velocity;
 
     velocity.x *= dt;
@@ -530,15 +538,13 @@ void dynamic_sphere_aabbs(DynamicObject* dynamic_object)
         /* process collision */
         int colliding = IntersectMovingSphereAABB(sphere, velocity, box, &time_of_collision, &collision_point);
 
-        dynamic_object->flags &= ~(1 << 0);
-
         if (colliding) 
         {
             /* colliding flag */
             dynamic_object->flags |= (1 << 0);
 
             StaticCollision s_collision;
-            s_collision.dynamic_object = (*dynamic_object);
+            s_collision.dynamic_object = dynamic_object;
 
             s_collision.static_object.box = box;
             s_collision.static_type = STATIC_AABB;
@@ -546,6 +552,9 @@ void dynamic_sphere_aabbs(DynamicObject* dynamic_object)
             static_collisions[num_static_collisions] = s_collision;
 
             num_static_collisions++;
+        } else {
+            dynamic_object->flags &= ~(1 << 0);
+            /* if not colliding and object*/
         }
     }
 }
@@ -588,24 +597,78 @@ void static_collision_detection(DynamicObject* dynamic_object)
 /*
         BEGIN OF DYNAMIC->DYNAMIC COLLISION
 */
+int TestMovingSphereSphere(Sphere s0, Sphere s1, Vector2D v0, Vector2D v1, float* t)
+{   
+    /* Vector between sphere centers */
+    Vector2D s = subtact_2d_vectors(s1.center, s0.center); 
+    
+    /* Relative motion of s1 with respect to stationary s0 */
+    Vector2D v = subtact_2d_vectors(v1, v0); 
 
-/*
-int TestMovingSphereSphere(Sphere s0, Sphere s1, Vector3D v0, Vector3D v1, float *t);
+    /* Sum of sphere radii */
+    float r = s1.radius + s0.radius; 
 
-void dynamic_sphere_sphere(DynamicObject obj_1, DynamicObject obj_2)
+    /* Dot product of the vector with itself minus the square of the sum of radii */
+    float c = dot_2d_vectors(s, s) - r * r;
+
+    if (c < 0.0f) {
+        /* Spheres initially overlapping so exit directly */
+        *t = 0.0f;
+        return 1;
+    }
+
+    /* Dot product of the relative motion vector with itself */
+    float a = dot_2d_vectors(v, v);
+    if (a < EPSILON) 
+        return 0; /* Spheres not moving relative each other */
+
+    /* Dot product of the relative motion vector with the vector between sphere centers */
+    float b = dot_2d_vectors(v, s);
+    if (b >= 0.0f) 
+        return 0; /* Spheres not moving towards each other */
+
+    /* Discriminant of the quadratic equation */
+    float d = b * b - a * c;
+    if (d < 0.0f) 
+        return 0; /* No real-valued root, spheres do not intersect */
+
+    /* Calculate time of intersection */
+    *t = (-b - my_sqrt(d)) / a;
+
+    return 1;
+}
+
+
+void dynamic_sphere_sphere(DynamicObject* obj_1, DynamicObject* obj_2)
 {
-    Sphere s0 = obj_1.collider.sphere;
-    Vector3D v0 = obj_1.state.velocity;
+    Sphere s0 = obj_1->collider.sphere;
+    s0.center.x += obj_1->state.position.x;
+    s0.center.y += obj_1->state.position.y;
 
-    Sphere s1 = obj_2.collider.sphere;
-    Vector3D v1 = obj_2.state.velocity;
+    Vector2D v0 = obj_1->state.velocity;
+    v0.x *= dt;
+    v0.y *= dt;
+
+    Sphere s1 = obj_2->collider.sphere;
+    s1.center.x += obj_2->state.position.x;
+    s1.center.y += obj_2->state.position.y;
+
+    Vector2D v1 = obj_2->state.velocity;
+    v1.x *= dt;
+    v1.y *= dt;
 
     float time_of_collision;
 
     int colliding = TestMovingSphereSphere(s0, s1, v0, v1, &time_of_collision);
 
+   
+
     if (colliding)
-    {
+    {  
+        obj_1->flags |= (1 << 1);
+        obj_2->flags |= (1 << 1);
+        
+        /*
         DynamicCollision d_collision;
         d_collision.dynamic_1 = obj_1;
         d_collision.dynamic_2 = obj_2;
@@ -613,27 +676,30 @@ void dynamic_sphere_sphere(DynamicObject obj_1, DynamicObject obj_2)
         dynamic_collisions[num_dynamic_collisions] = d_collision;
 
         num_dynamic_collisions++;
+        */
+    } else {
+        obj_1->flags &= ~(1 << 1);
+        obj_2->flags &= ~(1 << 1);
     }
 }
-*/
+
 
 /* check dynamic objects for collision */
-/*
-void dynamic_collision_detection(DynamicObject obj_1, DynamicObject obj_2)
+void dynamic_collision_detection(DynamicObject* obj_1, DynamicObject* obj_2)
 {
-    if (obj_1.type == DYNAMIC_SPHERE && obj_2.type == DYNAMIC_SPHERE)
+    if (obj_1->type == DYNAMIC_SPHERE && obj_2->type == DYNAMIC_SPHERE)
     {
         dynamic_sphere_sphere(obj_1, obj_2);
         return;
     }
 
-    if (obj_1.type == DYNAMIC_AABB && obj_2.type == DYNAMIC_AABB)
+    if (obj_1->type == DYNAMIC_AABB && obj_2->type == DYNAMIC_AABB)
     {
-        dynamic_aabb_aabb(obj_1, obj_2);
+        /* dynamic_aabb_aabb(obj_1, obj_2); */
         return;
     }
 }
-*/
+
 
 /*
         END OF DYNAMIC->DYNAMIC COLLISION
@@ -648,11 +714,28 @@ void CollisionDetection()
     for(i = 0; i < num_dynamic_objects; ++i)
     {
         static_collision_detection(&dynamic_objects[i]);
+        
+
+        if (i == 0)
+        {
+            int j;
+            for (j = 1; j < num_dynamic_objects; ++j)
+            {
+                if(j != i) {
+                    dynamic_collision_detection(&dynamic_objects[i],  &dynamic_objects[j]);
+                }
+            
+            }
+        }
+
         /*
         int j;
-        for (j = i + 1; j < num_dynamic_objects; ++j)
+        for (j = 0; j < num_dynamic_objects; ++j)
         {
-            dynamic_collision_detection(dynamic_objects[i],  dynamic_objects[j]);
+            if(j != i) {
+                dynamic_collision_detection(&dynamic_objects[i],  &dynamic_objects[j]);
+            }
+           
         }
         */
     }
