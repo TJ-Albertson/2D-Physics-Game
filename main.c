@@ -295,28 +295,6 @@ int main() {
             glBindVertexArray(0);
         }
 
-        /*
-        Mat4 model;
-        clear_matrix(&model);
-        translateMat4(&model, dynamic_objects[0].state.position.x, dynamic_objects[0].state.position.y, 0.0f);
-        setShaderMat4(basicShader, "model", &model);
-
-        setShaderVec4(basicShader, "color", 0.0f, 1.0f, 0.0f, 1.0f);
-
-        if(playerColliding)
-        {
-            setShaderVec4(basicShader, "color", 1.0f, 0.0f, 0.0f, 1.0f);
-        }
-        
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, textureID);
-
-        glBindVertexArray(circle_VAO);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
-        */
-
-
         /* End */
         glfwSwapBuffers(glfw_window);
         glfwPollEvents();
