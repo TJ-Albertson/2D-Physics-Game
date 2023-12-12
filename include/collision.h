@@ -635,7 +635,10 @@ int TestMovingSphereSphere(Sphere s0, Sphere s1, Vector2D v0, Vector2D v1, float
     /* Calculate time of intersection */
     *t = (-b - my_sqrt(d)) / a;
 
+    if(*t > 1) return 0;
+
     return 1;
+    
 }
 
 
@@ -661,7 +664,6 @@ void dynamic_sphere_sphere(DynamicObject* obj_1, DynamicObject* obj_2)
 
     int colliding = TestMovingSphereSphere(s0, s1, v0, v1, &time_of_collision);
 
-   
 
     if (colliding)
     {  
@@ -715,7 +717,7 @@ void CollisionDetection()
     {
         static_collision_detection(&dynamic_objects[i]);
         
-
+        
         if (i == 0)
         {
             int j;
