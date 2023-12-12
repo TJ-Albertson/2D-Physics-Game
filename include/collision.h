@@ -718,6 +718,7 @@ void CollisionDetection()
         static_collision_detection(&dynamic_objects[i]);
         
         
+        
         if (i == 0)
         {
             int j;
@@ -740,6 +741,7 @@ void CollisionDetection()
            
         }
         */
+        
     }
 }
 
