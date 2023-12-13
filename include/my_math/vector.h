@@ -39,6 +39,38 @@ void subtract(Vector3D *result, const Vector3D *v1, const Vector3D *v2) {
     result->z = v1->z - v2->z;
 }
 
+Vector3D add_3d_vectors(Vector3D v1, Vector3D v2) {
+    Vector3D result;
+    result.x = v1.x + v2.x;
+    result.y = v1.y + v2.y;
+    result.z = v1.z + v2.z;
+    return result;
+}
+
+
+
+/*  Vector2D functions */
+
+Vector2D vector2d_normalize(Vector2D v) {
+    float length = my_sqrt(v.x * v.x + v.y * v.y);
+
+    if (length != 0) 
+    {
+        v.x /= length;
+        v.y /= length;
+    }
+   
+    return v;
+}
+
+Vector2D vector2d_multiply(Vector2D v1, Vector2D v2)
+{
+    Vector2D result;
+    result.x = v1.x * v2.x;
+    result.y = v1.y * v2.y;
+    return result;
+}
+
 Vector2D subtract_2d_vectors(const Vector2D a, const Vector2D b) {
     Vector2D result;
     result.x = a.x - b.x;
@@ -64,12 +96,5 @@ Vector2D add_2d_vectors(Vector2D v1, Vector2D v2) {
     return result;
 }
 
-Vector3D add_3d_vectors(Vector3D v1, Vector3D v2) {
-    Vector3D result;
-    result.x = v1.x + v2.x;
-    result.y = v1.y + v2.y;
-    result.z = v1.z + v2.z;
-    return result;
-}
 
 #endif /* VECTOR_H */

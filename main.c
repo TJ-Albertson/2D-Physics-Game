@@ -235,15 +235,15 @@ int main() {
        
         
         
-        
-        /* collision_point */
-        if(playerColliding)
+
+        for (i = 0; i < 25; ++i)
         {
+           
             setShaderVec4(basicShader, "color", 1.0f, 1.0f, 0.0f, 1.0f);
         
             Mat4 model;
             clear_matrix(&model);
-            translateMat4(&model, collisionPoint.x, collisionPoint.y, 0.0f);
+            translateMat4(&model, collision_points[i].x, collision_points[i].y, 0.0f);
             scaleMat4(&model, 0.1f, 0.1f, 0.1f);
             setShaderMat4(basicShader, "model", &model);
 
@@ -254,8 +254,6 @@ int main() {
             glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
             glBindVertexArray(0);
 
-            /* for actual sphere */
-            
         }
 
         for (i = 0; i < num_dynamic_objects; ++i)
@@ -267,11 +265,11 @@ int main() {
 
             setShaderVec4(basicShader, "color", 0.0f, 1.0f, 0.0f, 1.0f);
 
-            
+            /*
             printf("dynamic_objects[%d].flags: ", i);
             printBinary(dynamic_objects[i].flags);
             printf("\n");
-            
+            */
 
             uint8_t collision_flag = (dynamic_objects[i].flags >> 0) & 1;
 

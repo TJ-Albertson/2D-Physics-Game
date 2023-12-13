@@ -13,7 +13,7 @@ const float FLT_MAX = 3.40282347e+38F;
 typedef Vector2D Point2D;
 
 typedef struct Plane {
-    float normal[3];
+    Vector2D normal;
     float dot;
 } Plane;
 
@@ -301,23 +301,6 @@ int IntersectMovingSphereAABB(Sphere sphere, Vector2D direction, AABB box, float
     return IntersectSegmentCapsule(segment, Corner(box, outside_min ^ 3), Corner(box, outside_max), sphere.radius, intersection_time);
 }
 
-void ClosestPtPointAABB(Point2D p, AABB b, Point2D *q)
-{
-    /*
-        For each coordinate axis, if the point coordinate value is
-        outside box, clamp it to the box, else keep it as is
-    */
-    int i;
-    for (i = 0; i < 2; i++)
-    {
-        float v = p.data[i];
-        if (v < b.min.data[i])
-            v = b.min.data[i]; /* v = max(v, b.min[i]) */
-        if (v > b.max.data[i])
-            v = b.max.data[i]; /* v = min(v, b.max[i]) */
-        q->data[i] = v;
-    }
-}
 
 int playerColliding = 0;
 Vector2D collisionPoint = {0.0f, 0.0f};
@@ -410,6 +393,8 @@ StaticCollision* static_collisions;
 int num_dynamic_collisions;
 DynamicCollision* dynamic_collisions;
 
+Point2D collision_points[25];
+
 
 /* Linear Congruential Generator parameters */
 #define A 1103515245
@@ -473,6 +458,37 @@ void initialize_collision()
     dynamic_collisions = (DynamicCollision*)malloc(20 * sizeof(DynamicCollision));
     boxes =                          (AABB*)malloc(10 * sizeof(AABB));
     dynamic_objects =       (DynamicObject*)malloc(20 * sizeof(DynamicObject));
+
+    int i = 0;
+    for (i = 0; i < 25; ++i)
+    {
+        Point2D point = {100, 100};
+
+        collision_points[i] = point;
+    }
+}
+
+
+
+
+
+
+void ClosestPtPointAABB(Point2D p, AABB b, Point2D *q)
+{
+    /*
+        For each coordinate axis, if the point coordinate value is
+        outside box, clamp it to the box, else keep it as is
+    */
+    int i;
+    for (i = 0; i < 2; i++)
+    {
+        float v = p.data[i];
+        if (v < b.min.data[i])
+            v = b.min.data[i]; /* v = max(v, b.min[i]) */
+        if (v > b.max.data[i])
+            v = b.max.data[i]; /* v = min(v, b.max[i]) */
+        q->data[i] = v;
+    }
 }
 
 
@@ -484,6 +500,35 @@ void CollisionResponse()
         StaticCollision s_collision = static_collisions[i];
 
         DynamicObject* dynamic_object = s_collision.dynamic_object;
+        StaticObject static_object = s_collision.static_object;
+
+        Point2D closest_point;
+        ClosestPtPointAABB(dynamic_object->state.position, static_object.box, &closest_point);
+
+        collision_points[i] = closest_point;
+
+        Vector2D n = subtact_2d_vectors(dynamic_object->state.position, closest_point);
+        n = vector2d_normalize(n);
+
+        Vector2D velocity = dynamic_object->state.velocity;
+        velocity.x *= dt;
+        velocity.y *= dt;
+
+        Vector2D vn = vector2d_multiply(velocity, n);
+        vn = vector2d_multiply(vn, n);
+
+        Vector2D vp = subtact_2d_vectors(velocity, vn);
+
+        Vector2D final_velocity = subtact_2d_vectors(vp, vn);
+
+        if (final_velocity.x < EPSILON && final_velocity.y < EPSILON)
+        {
+            dynamic_object->state.velocity = final_velocity;
+        }
+
+        /* printf("final_velocity: %f %f\n", final_velocity.x, final_velocity.y); */
+
+       
 
         /* processCollision(s_collision) */
 
