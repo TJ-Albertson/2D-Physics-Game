@@ -503,19 +503,21 @@ void CollisionResponse()
         StaticObject static_object = s_collision.static_object;
 
         Point2D closest_point;
-        ClosestPtPointAABB(dynamic_object->state.position, static_object.box, &closest_point);
+        ClosestPtPointAABB(dynamic_object->currentState.position, static_object.box, &closest_point);
 
         collision_points[i] = closest_point;
 
-        Vector2D n = subtact_2d_vectors(dynamic_object->state.position, closest_point);
+        Vector2D n = subtact_2d_vectors(dynamic_object->currentState.position, closest_point);
         n = vector2d_normalize(n);
 
-        Vector2D velocity = dynamic_object->state.velocity;
-        velocity.x *= dt;
-        velocity.y *= dt;
+        Vector2D velocity = dynamic_object->currentState.velocity;
 
-        Vector2D vn = vector2d_multiply(velocity, n);
-        vn = vector2d_multiply(vn, n);
+        
+        float dot = dot_2d_vectors(velocity, n);
+        Vector2D vn;
+        vn.x = n.x * dot;
+        vn.y = n.y * dot;
+
 
         Vector2D vp = subtact_2d_vectors(velocity, vn);
 
@@ -523,12 +525,11 @@ void CollisionResponse()
 
         if (final_velocity.x < EPSILON && final_velocity.y < EPSILON)
         {
-            dynamic_object->state.velocity = final_velocity;
+            continue;
         }
+        dynamic_object->currentState.velocity = final_velocity;
 
-        /* printf("final_velocity: %f %f\n", final_velocity.x, final_velocity.y); */
-
-       
+        /* printf("final_velocity: %f %f\n", final_velocity.x, final_velocity.y);  */
 
         /* processCollision(s_collision) */
 
@@ -563,10 +564,10 @@ void CollisionResponse()
 void dynamic_sphere_aabbs(DynamicObject* dynamic_object) 
 {
     Sphere sphere = dynamic_object->collider.sphere;
-    sphere.center.x += dynamic_object->state.position.x;
-    sphere.center.y += dynamic_object->state.position.y;
+    sphere.center.x += dynamic_object->currentState.position.x;
+    sphere.center.y += dynamic_object->currentState.position.y;
 
-    Vector2D velocity = dynamic_object->state.velocity;
+    Vector2D velocity = dynamic_object->currentState.velocity;
 
     velocity.x *= dt;
     velocity.y *= dt;

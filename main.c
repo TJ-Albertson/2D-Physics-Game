@@ -34,22 +34,21 @@ AABB aabb_platform;
 void IntegrateState(State* state, float time, float dt)
 {
     
-    Vector2D velocity = state->velocity;
-    Vector2D position = state->position;
-
+    
     Vector2D acceleration = gravity;
 
-    
 
     float friction_coefficient = 1.0f;
-    velocity.x = velocity.x + (acceleration.x - friction_coefficient * velocity.x) * dt;
-    velocity.y = velocity.y + (acceleration.y - friction_coefficient * velocity.y) * dt;
+    state->velocity.x = state->velocity.x + (acceleration.x - friction_coefficient * state->velocity.x) * dt;
+    state->velocity.y = state->velocity.y + (acceleration.y - friction_coefficient * state->velocity.y) * dt;
 
     /* PlayerCollision(state, aabb_platform); */
     CollisionDetection();
     CollisionResponse();
     
     /*Collision(velocity, state.position, dt); */
+    Vector2D velocity = state->velocity;
+    Vector2D position = state->position;
 
     position.x = position.x + velocity.x * dt;
     position.y = position.y + velocity.y * dt;
@@ -120,17 +119,17 @@ int main() {
 
     DynamicObject dynamic_object;
     dynamic_object.state.position.x = 0.0f;
-    dynamic_object.state.position.y = 0.0f;
+    dynamic_object.state.position.y = 2.0f;
     dynamic_object.state.velocity.x = 0.0f;
     dynamic_object.state.velocity.y = 0.0f;
 
     dynamic_object.currentState.position.x = 0.0f;
-    dynamic_object.currentState.position.y = 0.0f;
+    dynamic_object.currentState.position.y = 2.0f;
     dynamic_object.currentState.velocity.x = 0.0f;
     dynamic_object.currentState.velocity.y = 0.0f;
 
     dynamic_object.previousState.position.x = 0.0f;
-    dynamic_object.previousState.position.y = 0.0f;
+    dynamic_object.previousState.position.y = 2.0f;
     dynamic_object.previousState.velocity.x = 0.0f;
     dynamic_object.previousState.velocity.y = 0.0f;
 
@@ -189,7 +188,7 @@ int main() {
 
         const float alpha = accumulator / dt;
 
-        /* interpolating between pevious and current state */
+        /* interpolating between previous and current state */
         int i;
         for(i = 0; i < num_dynamic_objects; ++i)
         {
