@@ -504,6 +504,20 @@ void ClosestPtPointAABB(Point2D p, AABB b, Point2D *q)
     }
 }
 
+Point2D ClosestPtPointPlane(Point2D q, Plane p)
+{
+    float t = (vector2d_dot(p.normal, q) - p.dot) / vector2d_dot(p.normal, p.normal);
+
+    /* q - t * p.normal */
+    Point2D result = p.normal;
+    result.x *= t;
+    result.y *= t;
+
+    result = vector2d_subtract(q, result);
+
+    return result;
+}
+
 
 void CollisionResponse()
 {
@@ -517,6 +531,7 @@ void CollisionResponse()
 
         Point2D closest_point;
         ClosestPtPointAABB(dynamic_object->currentState.position, static_object.box, &closest_point);
+        
 
         collision_points[i] = closest_point;
 
@@ -532,7 +547,13 @@ void CollisionResponse()
         Vector2D slide_plane_normal = vector2d_subtract(dynamic_object->currentState.position, closest_point);
         slide_plane_normal = vector2d_normalize(slide_plane_normal);
 
-        float signed_distance = vector2d_distance(closest_point, destination_point);
+        Plane plane;
+        plane.normal = slide_plane_normal;
+        plane.dot = vector2d_dot(slide_plane_normal, closest_point);
+
+        Point2D dest_closest_point = ClosestPtPointPlane(destination_point, plane);
+
+        float signed_distance = vector2d_distance(dest_closest_point, destination_point);
         
         Vector2D temp;
         temp.x = slide_plane_normal.x * signed_distance;
@@ -547,8 +568,11 @@ void CollisionResponse()
 
         float friction = 0.01f;
 
+        /*
         dynamic_object->currentState.velocity.x = new_velocity.x;
-        dynamic_object->currentState.velocity.y = new_velocity.y;
+        dynamic_object->currentState.velocity.y = new_velocity.y;*/
+
+
         /*
 
         Vector2D n = vector2d_subtract(dynamic_object->currentState.position, closest_point);
@@ -636,6 +660,7 @@ void dynamic_sphere_aabbs(DynamicObject* dynamic_object)
 
         if (colliding) 
         {
+            
             /* colliding flag */
             dynamic_object->flags |= (1 << 0);
 
@@ -650,7 +675,6 @@ void dynamic_sphere_aabbs(DynamicObject* dynamic_object)
             num_static_collisions++;
         } else {
             dynamic_object->flags &= ~(1 << 0);
-            /* if not colliding and object*/
         }
     }
 }
@@ -833,7 +857,7 @@ void CollisionDetection()
         for (j = 0; j < num_dynamic_objects; ++j)
         {
             if(j != i) {
-                dynamic_collision_detection(&dynamic_objects[i],  &dynamic_objects[j]);
+               dynamic_collision_detection(&dynamic_objects[i],  &dynamic_objects[j]);
             }
            
         }

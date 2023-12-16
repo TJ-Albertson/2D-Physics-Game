@@ -42,19 +42,17 @@ void IntegrateState(State* state, float time, float dt)
     state->velocity.x = state->velocity.x + (acceleration.x - friction_coefficient * state->velocity.x) * dt;
     state->velocity.y = state->velocity.y + (acceleration.y - friction_coefficient * state->velocity.y) * dt;
 
-    /* PlayerCollision(state, aabb_platform); */
     CollisionDetection();
-    CollisionResponse();
+    CollisionResponse(); 
+    if (state->velocity.x > EPSILON || state->velocity.y > EPSILON) {
+        
+    }
+    /* PlayerCollision(state, aabb_platform); */
+    
     
     /*Collision(velocity, state.position, dt); */
-    Vector2D velocity = state->velocity;
-    Vector2D position = state->position;
-
-    position.x = position.x + velocity.x * dt;
-    position.y = position.y + velocity.y * dt;
-
-    state->position = position;
-    state->velocity = velocity;
+    state->position.x = state->position.x + state->velocity.x * dt;
+    state->position.y = state->position.y + state->velocity.y * dt;
 }
 
 void printBinary(uint8_t value) {
@@ -143,7 +141,7 @@ int main() {
     dynamic_objects[0] = dynamic_object;
     num_dynamic_objects++;
 
-    dynamic_objects_generate(5);
+    /* dynamic_objects_generate(5); */
     /* new collision */
 
 
@@ -269,12 +267,14 @@ int main() {
             printBinary(dynamic_objects[i].flags);
             printf("\n");
             */
+            
 
             uint8_t collision_flag = (dynamic_objects[i].flags >> 0) & 1;
 
             if(collision_flag)
             {
                 setShaderVec4(basicShader, "color", 1.0f, 0.0f, 0.0f, 1.0f);
+                
             }
 
             uint8_t dynamic_collision = (dynamic_objects[i].flags >> 1) & 1;
