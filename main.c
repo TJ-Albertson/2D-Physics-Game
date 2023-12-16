@@ -163,7 +163,7 @@ int main() {
             frameTime = 0.25;
         float currentTime = newTime;
 
-        float devTimeMultiplier = 1.0f;
+        float devTimeMultiplier = 0.5f;
 
         accumulator += frameTime;
 

@@ -407,10 +407,23 @@ unsigned int custom_rand(unsigned int *seed, unsigned int min, unsigned int max)
     return min + (*seed % (max - min + 1));
 }
 
+float custom_frand(unsigned int *seed, float min, float max) {
+    *seed = (unsigned int)(*seed * A + C) % (unsigned int)M;
+
+    /* Avoid division by 0 */
+    unsigned int random_int = *seed % ((unsigned int)M - 1); 
+
+    float random_float = (float)random_int / (M - 1);
+    return min + random_float * (max - min);
+}
+
 void dynamic_objects_generate(int count)
 {   
-    int min = -5;
-    int max = 5;
+    float min_x = -1;
+    float max_x = 1;
+
+    float min_y = 2;
+    float max_y = 10;
 
     int i;
     for (i = 0; i < count; ++i)
@@ -420,8 +433,8 @@ void dynamic_objects_generate(int count)
 
         DynamicObject dynamic_object;
 
-        int position_x = custom_rand(&seed_x, min, max);
-        int position_y = custom_rand(&seed_y, min, max);
+        float position_x = custom_frand(&seed_x, min_x, max_x);
+        float position_y = custom_frand(&seed_y, min_y, max_y);
 
         dynamic_object.state.position.x = position_x;
         dynamic_object.state.position.y = position_y;
@@ -543,6 +556,22 @@ void CollisionResponse()
         DynamicObject* dynamic_object_1 = d_collision.dynamic_1;
         DynamicObject* dynamic_object_2 = d_collision.dynamic_2;
 
+        Vector2D collision_point;
+        collision_point.x = (dynamic_object_1->currentState.position.x + dynamic_object_2->currentState.position.x) / 2;
+        collision_point.y = (dynamic_object_1->currentState.position.y + dynamic_object_2->currentState.position.y) / 2;
+
+        Vector2D new_velocity_dynamic_1 = subtact_2d_vectors(dynamic_object_1->currentState.position, collision_point);
+        Vector2D new_velocity_dynamic_2 = subtact_2d_vectors(dynamic_object_2->currentState.position, collision_point);
+
+        if (new_velocity_dynamic_1.x > EPSILON && new_velocity_dynamic_1.y > EPSILON)
+        {
+            dynamic_object_1->currentState.velocity = new_velocity_dynamic_1;
+        }
+       
+        if (new_velocity_dynamic_2.x > EPSILON && new_velocity_dynamic_2.y > EPSILON)
+        {
+            dynamic_object_2->currentState.velocity = new_velocity_dynamic_2;
+        }
     }
     num_dynamic_collisions = 0;
 }
@@ -716,7 +745,7 @@ void dynamic_sphere_sphere(DynamicObject* obj_1, DynamicObject* obj_2)
         obj_1->flags |= (1 << 1);
         obj_2->flags |= (1 << 1);
         
-        /*
+        
         DynamicCollision d_collision;
         d_collision.dynamic_1 = obj_1;
         d_collision.dynamic_2 = obj_2;
@@ -724,7 +753,7 @@ void dynamic_sphere_sphere(DynamicObject* obj_1, DynamicObject* obj_2)
         dynamic_collisions[num_dynamic_collisions] = d_collision;
 
         num_dynamic_collisions++;
-        */
+        
     } else {
         obj_1->flags &= ~(1 << 1);
         obj_2->flags &= ~(1 << 1);
@@ -764,7 +793,7 @@ void CollisionDetection()
         static_collision_detection(&dynamic_objects[i]);
         
         
-        
+        /*
         if (i == 0)
         {
             int j;
@@ -776,8 +805,8 @@ void CollisionDetection()
             
             }
         }
-
-        /*
+        */
+        
         int j;
         for (j = 0; j < num_dynamic_objects; ++j)
         {
@@ -786,7 +815,7 @@ void CollisionDetection()
             }
            
         }
-        */
+        
         
     }
 }
