@@ -468,7 +468,7 @@ void dynamic_objects_generate(int count)
 void initialize_collision()
 {
     static_collisions =   (StaticCollision*)malloc(20 * sizeof(StaticCollision));
-    dynamic_collisions = (DynamicCollision*)malloc(20 * sizeof(DynamicCollision));
+    dynamic_collisions = (DynamicCollision*)malloc(30 * sizeof(DynamicCollision));
     boxes =                          (AABB*)malloc(10 * sizeof(AABB));
     dynamic_objects =       (DynamicObject*)malloc(20 * sizeof(DynamicObject));
 
@@ -515,10 +515,18 @@ void CollisionResponse()
         DynamicObject* dynamic_object = s_collision.dynamic_object;
         StaticObject static_object = s_collision.static_object;
 
+        
+
         Point2D closest_point;
         ClosestPtPointAABB(dynamic_object->currentState.position, static_object.box, &closest_point);
 
         collision_points[i] = closest_point;
+
+        Vector2D new_velocity_dynamic_1 = subtact_2d_vectors(dynamic_object->currentState.position, closest_point);
+
+        dynamic_object->currentState.velocity = new_velocity_dynamic_1;
+
+        /*
 
         Vector2D n = subtact_2d_vectors(dynamic_object->currentState.position, closest_point);
         n = vector2d_normalize(n);
@@ -536,21 +544,16 @@ void CollisionResponse()
 
         Vector2D final_velocity = subtact_2d_vectors(vp, vn);
 
-        if (final_velocity.x < EPSILON && final_velocity.y < EPSILON)
-        {
-            continue;
-        }
         dynamic_object->currentState.velocity = final_velocity;
+        */
 
         /* printf("final_velocity: %f %f\n", final_velocity.x, final_velocity.y);  */
-
-        /* processCollision(s_collision) */
-
     }
     num_static_collisions = 0;
 
     for(i = 0; i < num_dynamic_collisions; ++i)
-    {
+    {   
+        
         DynamicCollision d_collision = dynamic_collisions[i];
 
         DynamicObject* dynamic_object_1 = d_collision.dynamic_1;
@@ -563,15 +566,8 @@ void CollisionResponse()
         Vector2D new_velocity_dynamic_1 = subtact_2d_vectors(dynamic_object_1->currentState.position, collision_point);
         Vector2D new_velocity_dynamic_2 = subtact_2d_vectors(dynamic_object_2->currentState.position, collision_point);
 
-        if (new_velocity_dynamic_1.x > EPSILON && new_velocity_dynamic_1.y > EPSILON)
-        {
-            dynamic_object_1->currentState.velocity = new_velocity_dynamic_1;
-        }
-       
-        if (new_velocity_dynamic_2.x > EPSILON && new_velocity_dynamic_2.y > EPSILON)
-        {
-            dynamic_object_2->currentState.velocity = new_velocity_dynamic_2;
-        }
+        dynamic_object_1->currentState.velocity = new_velocity_dynamic_1;
+        dynamic_object_2->currentState.velocity = new_velocity_dynamic_2;
     }
     num_dynamic_collisions = 0;
 }
@@ -745,14 +741,15 @@ void dynamic_sphere_sphere(DynamicObject* obj_1, DynamicObject* obj_2)
         obj_1->flags |= (1 << 1);
         obj_2->flags |= (1 << 1);
         
-        
+        /* THE WAY THIS IS IT CURRENTLY IT WALL MAKE TWO COPIES OF DYNAMIC COLLISION */
         DynamicCollision d_collision;
         d_collision.dynamic_1 = obj_1;
         d_collision.dynamic_2 = obj_2;
 
         dynamic_collisions[num_dynamic_collisions] = d_collision;
-
+        
         num_dynamic_collisions++;
+        
         
     } else {
         obj_1->flags &= ~(1 << 1);
