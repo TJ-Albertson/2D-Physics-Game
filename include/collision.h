@@ -142,17 +142,17 @@ int IntersectSegmentCapsule(Segment segment, Point2D p, Point2D q, float r, floa
     Point2D sa = segment.p1;
     Point2D sb = segment.p2;
 
-    Vector2D d = subtact_2d_vectors(q, p), m = subtact_2d_vectors(sa, p), n = subtact_2d_vectors(sb, sa);
+    Vector2D d = vector2d_subtract(q, p), m = vector2d_subtract(sa, p), n = vector2d_subtract(sb, sa);
 
-    float md = dot_2d_vectors(m, d);
-    float nd = dot_2d_vectors(n, d);
-    float dd = dot_2d_vectors(d, d);
+    float md = vector2d_dot(m, d);
+    float nd = vector2d_dot(n, d);
+    float dd = vector2d_dot(d, d);
     if (md < 0.0f && md + nd < 0.0f) return 0;
     if (md > dd && md + nd > dd) return 0;
-    float nn = dot_2d_vectors(n, n);
-    float mn = dot_2d_vectors(m, n);
+    float nn = vector2d_dot(n, n);
+    float mn = vector2d_dot(m, n);
     float a = dd * nn - nd * nd;
-    float k = dot_2d_vectors(m, m) - r * r;
+    float k = vector2d_dot(m, m) - r * r;
     float c = dd * k - md * md;
     if (my_fabs(a) < EPSILON) {
         if (c > 0.0f) return 0;
@@ -186,9 +186,9 @@ int IntersectSegmentCapsule(Segment segment, Point2D p, Point2D q, float r, floa
 int IntersectSegmentSphere(Point2D segStart, Vector2D segDir, Sphere sphereObj, float *t, Point2D *intersectionPoint)
 {
     Vector2D segStartToSphereCenter = subtract_2d_vectors(segStart, sphereObj.center);
-    float projectionOfMOnD = dot_2d_vectors(segStartToSphereCenter, segDir);
+    float projectionOfMOnD = vector2d_dot(segStartToSphereCenter, segDir);
     float sphereRadiusSquared = sphereObj.radius * sphereObj.radius;
-    float lengthMSquaredMinusRadiusSquared = dot_2d_vectors(segStartToSphereCenter, segStartToSphereCenter) - sphereRadiusSquared;
+    float lengthMSquaredMinusRadiusSquared = vector2d_dot(segStartToSphereCenter, segStartToSphereCenter) - sphereRadiusSquared;
 
     /* Exit if segStart’s origin outside sphereObj (lengthMSquaredMinusRadiusSquared > 0) and segDir pointing away from sphereObj (projectionOfMOnD > 0) */
     if (lengthMSquaredMinusRadiusSquared > 0.0f && projectionOfMOnD > 0.0f)
@@ -261,7 +261,7 @@ int IntersectMovingSphereAABB(Sphere sphere, Vector2D direction, AABB box, float
     /* Define line segment [c, c+d] specified by the sphere movement */
     Segment segment;
     segment.p1 = sphere.center;
-    segment.p2 = add_2d_vectors(sphere.center, direction);
+    segment.p2 = vector2d_add(sphere.center, direction);
     
     /* If all 3 bits set (m == 3) then p is in a vertex region */
     if (bitmask == 3) {
@@ -515,34 +515,57 @@ void CollisionResponse()
         DynamicObject* dynamic_object = s_collision.dynamic_object;
         StaticObject static_object = s_collision.static_object;
 
-        
-
         Point2D closest_point;
         ClosestPtPointAABB(dynamic_object->currentState.position, static_object.box, &closest_point);
 
         collision_points[i] = closest_point;
 
-        Vector2D new_velocity_dynamic_1 = subtact_2d_vectors(dynamic_object->currentState.position, closest_point);
+        /* Vector2D new_velocity = vector2d_subtract(dynamic_object->currentState.position, closest_point); */
 
-        dynamic_object->currentState.velocity = new_velocity_dynamic_1;
+        
 
+        Vector2D velocity = dynamic_object->currentState.velocity;
+
+
+        Vector2D destination_point = vector2d_add(dynamic_object->currentState.position, velocity);
+
+        Vector2D slide_plane_normal = vector2d_subtract(dynamic_object->currentState.position, closest_point);
+        slide_plane_normal = vector2d_normalize(slide_plane_normal);
+
+        float signed_distance = vector2d_distance(closest_point, destination_point);
+        
+        Vector2D temp;
+        temp.x = slide_plane_normal.x * signed_distance;
+        temp.y = slide_plane_normal.y * signed_distance;
+
+        Vector2D new_destination_point = vector2d_subtract(destination_point, temp);
+
+        Vector2D new_velocity = vector2d_subtract(new_destination_point, closest_point);
+
+        float dot = vector2d_dot(dynamic_object->currentState.velocity, new_velocity);
+        dot = (dot + 1) / 2;
+
+        float friction = 0.01f;
+
+        dynamic_object->currentState.velocity.x = new_velocity.x;
+        dynamic_object->currentState.velocity.y = new_velocity.y;
         /*
 
-        Vector2D n = subtact_2d_vectors(dynamic_object->currentState.position, closest_point);
+        Vector2D n = vector2d_subtract(dynamic_object->currentState.position, closest_point);
         n = vector2d_normalize(n);
 
         Vector2D velocity = dynamic_object->currentState.velocity;
 
         
-        float dot = dot_2d_vectors(velocity, n);
+        float dot = vector2d_dot(velocity, n);
         Vector2D vn;
         vn.x = n.x * dot;
         vn.y = n.y * dot;
 
 
-        Vector2D vp = subtact_2d_vectors(velocity, vn);
+        Vector2D vp = vector2d_subtract(velocity, vn);
 
-        Vector2D final_velocity = subtact_2d_vectors(vp, vn);
+        Vector2D final_velocity = vector2d_subtract(vp, vn);
 
         dynamic_object->currentState.velocity = final_velocity;
         */
@@ -563,8 +586,8 @@ void CollisionResponse()
         collision_point.x = (dynamic_object_1->currentState.position.x + dynamic_object_2->currentState.position.x) / 2;
         collision_point.y = (dynamic_object_1->currentState.position.y + dynamic_object_2->currentState.position.y) / 2;
 
-        Vector2D new_velocity_dynamic_1 = subtact_2d_vectors(dynamic_object_1->currentState.position, collision_point);
-        Vector2D new_velocity_dynamic_2 = subtact_2d_vectors(dynamic_object_2->currentState.position, collision_point);
+        Vector2D new_velocity_dynamic_1 = vector2d_subtract(dynamic_object_1->currentState.position, collision_point);
+        Vector2D new_velocity_dynamic_2 = vector2d_subtract(dynamic_object_2->currentState.position, collision_point);
 
         dynamic_object_1->currentState.velocity = new_velocity_dynamic_1;
         dynamic_object_2->currentState.velocity = new_velocity_dynamic_2;
@@ -593,9 +616,11 @@ void dynamic_sphere_aabbs(DynamicObject* dynamic_object)
     sphere.center.y += dynamic_object->currentState.position.y;
 
     Vector2D velocity = dynamic_object->currentState.velocity;
-
+    
+    /*
     velocity.x *= dt;
     velocity.y *= dt;
+    */
 
     int i;
     for (i = 0; i < num_boxes; ++i)
@@ -671,16 +696,16 @@ void static_collision_detection(DynamicObject* dynamic_object)
 int TestMovingSphereSphere(Sphere s0, Sphere s1, Vector2D v0, Vector2D v1, float* t)
 {   
     /* Vector between sphere centers */
-    Vector2D s = subtact_2d_vectors(s1.center, s0.center); 
+    Vector2D s = vector2d_subtract(s1.center, s0.center); 
     
     /* Relative motion of s1 with respect to stationary s0 */
-    Vector2D v = subtact_2d_vectors(v1, v0); 
+    Vector2D v = vector2d_subtract(v1, v0); 
 
     /* Sum of sphere radii */
     float r = s1.radius + s0.radius; 
 
     /* Dot product of the vector with itself minus the square of the sum of radii */
-    float c = dot_2d_vectors(s, s) - r * r;
+    float c = vector2d_dot(s, s) - r * r;
 
     if (c < 0.0f) {
         /* Spheres initially overlapping so exit directly */
@@ -689,12 +714,12 @@ int TestMovingSphereSphere(Sphere s0, Sphere s1, Vector2D v0, Vector2D v1, float
     }
 
     /* Dot product of the relative motion vector with itself */
-    float a = dot_2d_vectors(v, v);
+    float a = vector2d_dot(v, v);
     if (a < EPSILON) 
         return 0; /* Spheres not moving relative each other */
 
     /* Dot product of the relative motion vector with the vector between sphere centers */
-    float b = dot_2d_vectors(v, s);
+    float b = vector2d_dot(v, s);
     if (b >= 0.0f) 
         return 0; /* Spheres not moving towards each other */
 

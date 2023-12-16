@@ -78,18 +78,31 @@ Vector2D subtract_2d_vectors(const Vector2D a, const Vector2D b) {
     return result;
 }
 
-float dot_2d_vectors(Vector2D a, Vector2D b) {
+float vector2d_distance(Vector2D a, Vector2D b) {
+
+    float x_dist = b.x - a.x;
+    x_dist *= x_dist;
+
+    float y_dist = b.y - a.y;
+    y_dist *= y_dist;
+
+    float distance = my_sqrt(x_dist + y_dist);
+
+    return distance;
+}
+
+float vector2d_dot(Vector2D a, Vector2D b) {
     return a.x * b.x + a.y * b.y;
 }
 
-Vector2D subtact_2d_vectors(Vector2D a, Vector2D b) {
+Vector2D vector2d_subtract(Vector2D a, Vector2D b) {
     Vector2D result;
     result.x = a.x - b.x;
     result.y = a.y - b.y;
     return result;
 }
 
-Vector2D add_2d_vectors(Vector2D v1, Vector2D v2) {
+Vector2D vector2d_add(Vector2D v1, Vector2D v2) {
     Vector2D result;
     result.x = v1.x + v2.x;
     result.y = v1.y + v2.y;
